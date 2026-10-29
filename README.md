@@ -2,4 +2,6 @@
 
 Nukalhed22 Studios: an interactive song-analysis and guitar-learning app.
 
-- [Development SOP](docs/SOP.md): how features are planned, built, tested, and reported.
+- [Project goal](PROJECT_GOAL.md): the product vision and intended outcome.
+- [Project instructions](PROJECT_INSTRUCTIONS.md): the AI coding assistant's role and development standards.
+- [SOP](SOP.md): the required development and testing procedures.
