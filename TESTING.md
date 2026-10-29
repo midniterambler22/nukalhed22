@@ -2,7 +2,9 @@
 
 Documents testing procedures, expected results, and known failures.
 
-**Status (2026-10-29):** No tests yet. The test tooling is set up in Phase 1.
+**Status (2026-10-29):** Vitest is set up. The music theory module has 154 unit tests, all passing. Playwright and axe-core aren't set up yet.
+
+Run `npm test`. Test files sit next to their code as `*.test.ts`.
 
 ## Test layers
 
