@@ -17,4 +17,15 @@ Nukalhed22 Studios: an interactive song-analysis and guitar-learning app.
 - [Testing](TESTING.md): procedures, reference values, known failures.
 - [Changelog](CHANGELOG.md)
 
-Setup, development, test, and build commands will be added when the app is scaffolded (Phase 1).
+## Development
+
+Requires Node.js 22 or later.
+
+```sh
+npm install
+npm run dev        # start the dev server
+npm test           # unit tests (Vitest)
+npm run typecheck  # TypeScript, strict mode
+npm run lint       # ESLint
+npm run build      # production build
+```

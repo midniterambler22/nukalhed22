@@ -33,7 +33,7 @@ The four project documents are Mark's own wording. Don't edit them unless he ask
 
 ## Repository layout
 
-The app hasn't been scaffolded yet. The planned layout (see PROJECT_INSTRUCTIONS §4) is:
+The app is scaffolded with Vite + React + TypeScript. The music theory engine lives in `src/services/music-theory` (import from its `index.ts`). The planned layout (see PROJECT_INSTRUCTIONS §4) is:
 
 ```
 src/
@@ -51,17 +51,20 @@ Only create folders when something goes in them.
 
 ## Commands
 
-To be filled in when Phase 1 scaffolds the app (Vite + React + TypeScript). Expected:
+Requires Node.js 22 or later.
 
 | Task | Command |
 |---|---|
 | Install | `npm install` |
 | Dev server | `npm run dev` |
-| Unit tests | `npm test` |
-| End-to-end tests | `npm run test:e2e` |
+| Unit tests | `npm test` (watch mode: `npm run test:watch`) |
 | Type check | `npm run typecheck` |
 | Lint | `npm run lint` |
+| Format | `npm run format` (check only: `npm run format:check`) |
 | Production build | `npm run build` |
+| End-to-end tests | `npm run test:e2e` (not set up yet; Playwright and axe-core come with the first interactive UI) |
+
+Unit tests sit next to the code they test as `*.test.ts`. Prettier skips Markdown so the project documents keep their wording and layout.
 
 ## Conventions
 

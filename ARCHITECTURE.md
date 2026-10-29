@@ -2,7 +2,7 @@
 
 Documents the technical architecture, module boundaries, and recorded decisions. The full requirements are in PROJECT_INSTRUCTIONS §3–§8. This file records how they're realized and why.
 
-**Status (2026-10-29):** Planned only. No application code yet.
+**Status (2026-10-29):** App scaffolded. The music theory module is implemented; other modules are planned.
 
 ## Platform
 
@@ -28,6 +28,17 @@ A browser-based app built with React + TypeScript + Vite. Audio is processed loc
 - Analysis results and user corrections are stored as separate layers.
 - Pitch classes are numbers 0–11; note names are a display concern.
 
+## Music theory module
+
+`src/services/music-theory`, imported through `index.ts`. Pure functions, no dependencies.
+
+- `PitchClass` (0–11) and `MidiNote` (E2 = 40, C4 = 60) carry the sound. `SpelledNote` (letter + accidental) carries the name.
+- `Interval` is a scale degree plus a semitone count (`b3` = degree 3, 3 semitones). The degree fixes the letter, so spelling is always correct: E blues gives B♭, not A♯; F♯ major gives E♯.
+- Scales (`SCALES`) and chord qualities (`CHORD_QUALITIES`) are formula tokens such as `['1', 'b3', '4', '5', 'b7']`, validated when the module loads.
+- `spellScale`, `scalePitchClasses`, `scaleDegreeOf`, `chordTones`, `chordPitchClasses` and `parseChordSymbol` build everything from those formulas.
+- `spellPitchClassInContext` names a bare pitch class using a spelled scale or chord, falling back to sharps or flats to match it.
+- Invalid input (a bad note name, interval or chord symbol) throws `TheoryError` with a readable message. `isNoteName` and `isChordSymbol` check without throwing.
+
 ## Core data types (planned)
 
 - `PitchClass` (0–11), `Note` (pitch class + octave + spelling)
@@ -45,5 +56,6 @@ Timestamps are in seconds (floating point) everywhere.
 | Date | Decision | Reason |
 |---|---|---|
 | 2026-10-29 | Browser-first, local processing | PROJECT_INSTRUCTIONS §3 and §6, privacy |
-| — | Tonal.js vs. own theory module | To decide in Phase 1 (TOOLSET §3.1, §12) |
+| 2026-10-29 | Own theory module instead of Tonal.js | The needed core is small (under 800 lines). Owning it keeps one tested source of truth with the exact types the fretboard and recommendation engines need, and adds no dependency. Revisit if we need a broad chord dictionary or chord detection from note sets. |
+| 2026-10-29 | TypeScript 6.0, not 7 | typescript-eslint supports TypeScript below 6.1 only |
 | — | Analysis engine | To decide in Phase 5 after testing against known audio |

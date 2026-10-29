@@ -2,7 +2,7 @@
 
 Tracks milestones, tasks, dependencies, and progress. Update this file as work completes.
 
-**Status (2026-10-29):** Project documents are in place. No application code yet. Next up: Phase 1, Foundation.
+**Status (2026-10-29):** Phase 1 in progress. The app is scaffolded and the music theory engine is in place with unit tests. The instrument model and fretboard engine are being built in a separate branch.
 
 **Build order:** This plan follows PROJECT_INSTRUCTIONS §15 and the PROJECT_GOAL §6 initial release scope. Manual chord entry, the timeline, and practice sessions come before automated analysis. SOP §21 lists analysis earlier; Mark hasn't decided between the two yet, so this order may change.
 
@@ -20,16 +20,18 @@ Legend: `[x]` done · `[ ]` not started · `[~]` in progress
 
 Goal: a working, testable app shell with a correct theory and fretboard engine. (SOP §4 and §6)
 
-- [ ] Scaffold Vite + React + TypeScript (strict mode)
-- [ ] Add ESLint, Prettier (tabs), Vitest, Playwright, axe-core
-- [ ] Add npm scripts: dev, build, test, test:e2e, typecheck, lint
-- [ ] Fill in commands in CLAUDE.md and README.md
-- [ ] Music theory module: pitch classes (0–11), note naming/enharmonics, intervals, scale formulas, chord formulas, transposition
+- [x] Scaffold Vite + React + TypeScript (strict mode)
+- [x] Add ESLint, Prettier (tabs), Vitest
+- [ ] Add Playwright and axe-core (with the first interactive UI)
+- [x] Add npm scripts: dev, build, test, typecheck, lint, format
+- [ ] Add npm script: test:e2e
+- [x] Fill in commands in CLAUDE.md and README.md
+- [x] Music theory module: pitch classes (0–11), note naming/enharmonics, intervals, scale formulas, chord formulas, transposition
 - [ ] Instrument model: string count, tuning, capo, fret count, validation
 - [ ] Fretboard engine: string + fret → pitch; note → all positions
-- [ ] Unit tests against the reference values in TESTING.md
-- [ ] Main workspace layout shell (placeholder regions clearly marked unavailable)
-- [ ] Record the decision on using Tonal.js vs. our own module in ARCHITECTURE.md
+- [~] Unit tests against the reference values in TESTING.md (theory values done; fretboard values come with the fretboard engine)
+- [x] Main workspace layout shell (placeholder regions clearly marked unavailable)
+- [x] Record the decision on using Tonal.js vs. our own module in ARCHITECTURE.md
 
 **Done when:** the app builds and starts, type check and lint pass, and theory and fretboard unit tests pass.
 
