@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chordAt, renderSong, type RenderedSong, type SynthOptions } from '../../tests/synth';
+import { chordAt, renderSong, type RenderedSong, type SynthOptions } from '../demo';
 import { analyzeAudio } from './analyze';
 import { AnalysisError, type AnalysisResult } from './types';
 

@@ -244,6 +244,15 @@ export function registerRange(instrument: Instrument, register: Register): FretR
 	return { min: lowest + third * index, max: lowest + third * (index + 1) };
 }
 
+function isInRegister(center: number, range: FretRange, register: Register): boolean {
+	return center >= range.min && (center < range.max || (register === 'high' && center <= range.max));
+}
+
+function byDistanceTo(target: number) {
+	return (a: ScalePosition, b: ScalePosition) =>
+		Math.abs(centerFret(a) - target) - Math.abs(centerFret(b) - target);
+}
+
 /**
  * Positions for a register, best first. A position belongs to the register
  * whose third of the playable neck holds its center fret; the best is the one
@@ -256,15 +265,35 @@ export function selectRegister(
 	positions: readonly ScalePosition[],
 	register: Register,
 ): ScalePosition[] {
-	const { min, max } = registerRange(instrument, register);
-	const target = (min + max) / 2;
-	const isTopRegister = register === 'high';
-	const inside = positions.filter((p) => {
-		const center = centerFret(p);
-		return center >= min && (center < max || (isTopRegister && center <= max));
-	});
+	const range = registerRange(instrument, register);
+	const inside = positions.filter((p) => isInRegister(centerFret(p), range, register));
 	const candidates = inside.length > 0 ? inside : [...positions];
-	return candidates.sort(
-		(a, b) => Math.abs(centerFret(a) - target) - Math.abs(centerFret(b) - target),
+	return candidates.sort(byDistanceTo((range.min + range.max) / 2));
+}
+
+/**
+ * The positions to show for a register, in neck order: every position inside its
+ * third of the neck, or the single nearest one when none is inside (e.g. high
+ * up with a capo), so a register never shows the whole neck by accident.
+ */
+export function positionsInRegister(
+	instrument: Instrument,
+	positions: readonly ScalePosition[],
+	register: Register,
+): ScalePosition[] {
+	const range = registerRange(instrument, register);
+	const inside = positions.filter((p) => isInRegister(centerFret(p), range, register));
+	if (inside.length > 0) return inside;
+	const nearest = selectRegister(instrument, positions, register)[0];
+	return nearest ? [nearest] : [];
+}
+
+/** The register (third of the playable neck) that holds a position's center fret. */
+export function registerOf(instrument: Instrument, position: ScalePosition): Register {
+	const center = centerFret(position);
+	return (
+		REGISTERS.find((register) =>
+			isInRegister(center, registerRange(instrument, register), register),
+		) ?? (center < registerRange(instrument, 'low').min ? 'low' : 'high')
 	);
 }

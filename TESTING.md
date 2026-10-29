@@ -97,7 +97,7 @@ Register selection on a 22-fret neck with no capo splits the frets into thirds (
 
 ## Analysis verification (2026-10-29)
 
-Reference songs are rendered by `src/tests/synth.ts` from a score (strummed chords with harmonics, bass, kick on 1 and 3, snare on 2 and 4, eighth-note hi-hat), so the right answers are exact. These prove the maths and catch regressions. **They are not a measure of accuracy on real recordings, which hasn't been measured yet.**
+Reference songs are rendered by `src/services/demo/synth.ts` from a score (strummed chords with harmonics, bass, kick on 1 and 3, snare on 2 and 4, eighth-note hi-hat), so the right answers are exact. These prove the maths and catch regressions. **They are not a measure of accuracy on real recordings, which hasn't been measured yet.**
 
 | Reference song (SOP §8 case) | Key | Tempo | Beats within 50 ms | Chord time correct |
 |---|---|---|---|---|

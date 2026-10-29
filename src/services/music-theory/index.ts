@@ -65,3 +65,4 @@ export {
 	type ChordQuality,
 	type ChordQualityId,
 } from './chords';
+export { chordTonesInScale, romanNumeral, type ChordToneInScale } from './harmony';
