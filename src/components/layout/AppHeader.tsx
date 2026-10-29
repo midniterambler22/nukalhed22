@@ -21,10 +21,7 @@ export function AppHeader({ songTitle, analysis, onOpenHelp, onOpenSettings }: A
 		<header className="app-header">
 			<div className="app-brand">
 				<Logo />
-				<div>
-					<h1 className="app-name">Nukalhed22 Studios</h1>
-					<p className="app-tagline">Learn · Explore · Play</p>
-				</div>
+				<h1 className="app-name">Nukalhed22 Studios</h1>
 			</div>
 
 			<section className="app-song" aria-label="Current song">
