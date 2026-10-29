@@ -1,3 +1,12 @@
 export { KeyTempoPanel, type KeyTempoPanelProps } from './KeyTempoPanel';
+export { AnalysisSummary, type AnalysisSummaryProps } from './AnalysisSummary';
 export { ChordList, type ChordListProps } from './ChordList';
-export { chordShares, CONFIDENCE_WORDS, displayChord, keyHeadline } from './describe';
+export { SongInfo, type SongInfoProps } from './SongInfo';
+export {
+	chordColorSlots,
+	chordShares,
+	CONFIDENCE_WORDS,
+	displayChord,
+	keyHeadline,
+	STAGE_WORDS,
+} from './describe';

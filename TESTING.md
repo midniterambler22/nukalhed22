@@ -121,6 +121,14 @@ Manual in Chromium (production build, 390 px wide, light and dark): a 58 s 12-ba
 
 Not yet tested: real recordings, Safari and Firefox, songs near the 20-minute limit (expect about 25 s of analysis for 20 minutes in Chromium), tunings other than A = 440 Hz.
 
+## Studio workspace verification (2026-10-29)
+
+Unit and component tests: progression timing (current chord at boundaries and gaps, next and previous change, time markers); `romanNumeral` (12-bar blues = I, IV, V; case and ° in C major; borrowed ♭VI, ♭VII); `chordTonesInScale` (A7 over A minor pentatonic: C♯ outside; E7: E and D inside); `positionsInRegister` and `registerOf` for A minor pentatonic; WAV encoding and the demo song's length. `ScaleViewer.test.tsx`: formula, notes and positions; box labels with registers; key spelling; invalid chord; capo; 12-fret neck; Low / Middle / High show exactly the boxes in that third; box toggles, none, all, previous/next; roots and chord-tone layers; seven-note scales in a register; chord-tone focus text. `App.test.tsx`: empty states, tab keyboard navigation keeping Scale Viewer state, planned tabs, Settings changes the tuning, Help. Player tests now cover the import panel and the playback bar together, plus the demo song.
+
+Manual in Chromium (dev server) at 1440, 900 and 390 px: the demo song loads, analyzes (A major, 100 BPM, A7/D7/E7) and plays; the timeline and chord list follow playback; no console errors; axe-core (WCAG 2.2 AA and best practice) reports no violations on Scale Viewer, Song Info and a planned tab at desktop and phone widths.
+
+Not yet tested: Safari, Firefox, a real phone (the preview is for that), screen readers.
+
 ## Known failures
 
 None yet.

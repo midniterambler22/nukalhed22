@@ -160,11 +160,11 @@ describe('analysis panels', () => {
 		const buttons = chords.getAllByRole('button');
 		expect(buttons.map((b) => b.getAttribute('aria-label'))).toEqual([
 			'0 seconds: No chord',
-			'2 seconds: Am, likely',
-			'10 seconds: F♯m, possible, or C or Em',
-			'14 seconds: B♭7, uncertain, or C or Em',
+			'2 seconds: Am, likely, function i',
+			'10 seconds: F♯m, possible, or C or Em, function vi',
+			'14 seconds: B♭7, uncertain, or C or Em, function ♭II',
 		]);
-		expect(buttons[3]?.textContent).toBe('0:14B♭7?');
+		expect(buttons[3]?.textContent).toBe('0:14B♭7?♭II');
 		fireEvent.click(buttons[2] as HTMLElement);
 		expect(onSeek).toHaveBeenCalledWith(10);
 		expect(screen.getByText(/Main chords/).parentElement?.textContent).toMatch(
@@ -267,5 +267,25 @@ describe('describe helpers', () => {
 		expect(displayChord('F#m7')).toBe('F♯m7');
 		expect(displayChord('Bb')).toBe('B♭');
 		expect(displayChord('Bm')).toBe('Bm');
+	});
+
+	it('marks the chord playing now, and hides functions while the key is unsure', async () => {
+		const { engine, jobs } = controlledEngine();
+		const audio = audioState();
+		function Now() {
+			const analysis = useSongAnalysis(audio, engine);
+			return <ChordList analysis={analysis} onSeek={() => {}} currentIndex={1} />;
+		}
+		render(<Now />);
+		const base = result();
+		await act(async () =>
+			jobs[0]?.resolve(
+				result({ key: base.key && { ...base.key, confidence: toConfidence(0.2) } }),
+			),
+		);
+		const now = screen.getByRole('button', { current: true });
+		expect(now.getAttribute('aria-label')).toBe('2 seconds: Am, likely, playing now');
+		expect(now.textContent).toMatch(/Now$/);
+		expect(screen.getByText(/Chord functions show once the key is likely/)).toBeTruthy();
 	});
 });

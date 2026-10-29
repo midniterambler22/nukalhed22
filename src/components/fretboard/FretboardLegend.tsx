@@ -4,12 +4,15 @@ export interface FretboardLegendProps {
 	showChordTones?: boolean;
 	/** Show the entry for chord tones that aren't in the scale. */
 	showOutsideChordTones?: boolean;
+	/** Show the entry for box outlines. */
+	showBoxes?: boolean;
 }
 
 /** Explains marker shapes in words, so roles never depend on color alone. */
 export function FretboardLegend({
 	showChordTones = true,
 	showOutsideChordTones = false,
+	showBoxes = false,
 }: FretboardLegendProps) {
 	return (
 		<ul className="fretboard-legend" aria-label="Fretboard legend">
@@ -24,7 +27,7 @@ export function FretboardLegend({
 						rx="3"
 					/>
 				</svg>
-				Square: root
+				Red square: root
 			</li>
 			<li>
 				<svg width="22" height="22" aria-hidden="true">
@@ -35,7 +38,7 @@ export function FretboardLegend({
 						r="8"
 					/>
 				</svg>
-				Circle: scale note
+				Orange circle: scale note
 			</li>
 			{showChordTones && (
 				<li>
@@ -48,7 +51,7 @@ export function FretboardLegend({
 							r="7"
 						/>
 					</svg>
-					Outer ring: chord tone
+					Blue ring: chord tone
 				</li>
 			)}
 			{showOutsideChordTones && (
@@ -62,7 +65,22 @@ export function FretboardLegend({
 							r="7"
 						/>
 					</svg>
-					Hollow ring: chord tone outside the scale
+					Hollow blue ring: chord tone outside the scale
+				</li>
+			)}
+			{showBoxes && (
+				<li>
+					<svg width="26" height="22" aria-hidden="true">
+						<rect
+							className="fretboard-box-outline fretboard-box--5"
+							x="2"
+							y="2"
+							width="22"
+							height="18"
+							rx="4"
+						/>
+					</svg>
+					Coloured outline: box, named above the neck
 				</li>
 			)}
 		</ul>

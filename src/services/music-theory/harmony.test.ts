@@ -10,16 +10,9 @@ describe('romanNumeral', () => {
 	});
 
 	it('uses case for the third and marks diminished chords', () => {
-		expect(['C', 'Dm', 'Em7', 'F', 'G7', 'Am', 'Bdim', 'Bm7b5'].map((c) => romanNumeral(c, C))).toEqual([
-			'I',
-			'ii',
-			'iii',
-			'IV',
-			'V',
-			'vi',
-			'vii°',
-			'viiø',
-		]);
+		expect(
+			['C', 'Dm', 'Em7', 'F', 'G7', 'Am', 'Bdim', 'Bm7b5'].map((c) => romanNumeral(c, C)),
+		).toEqual(['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°', 'viiø']);
 	});
 
 	it('marks borrowed roots with flats and sharps', () => {
@@ -49,6 +42,9 @@ describe('chordTonesInScale', () => {
 
 	it('E7 over A minor pentatonic: G♯ is outside, B too; E and D are in', () => {
 		const tones = chordTonesInScale('E7', A, 'minor-pentatonic');
-		expect(tones.filter((t) => t.scaleInterval).map((t) => formatNote(t.note))).toEqual(['E', 'D']);
+		expect(tones.filter((t) => t.scaleInterval).map((t) => formatNote(t.note))).toEqual([
+			'E',
+			'D',
+		]);
 	});
 });

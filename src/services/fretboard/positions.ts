@@ -245,7 +245,9 @@ export function registerRange(instrument: Instrument, register: Register): FretR
 }
 
 function isInRegister(center: number, range: FretRange, register: Register): boolean {
-	return center >= range.min && (center < range.max || (register === 'high' && center <= range.max));
+	return (
+		center >= range.min && (center < range.max || (register === 'high' && center <= range.max))
+	);
 }
 
 function byDistanceTo(target: number) {

@@ -1,21 +1,25 @@
 import type { SongAnalysis } from '../../hooks/useSongAnalysis';
 import { describeTime, formatTime } from '../../services/audio';
-import { CONFIDENCE_WORDS, chordShares, displayChord } from './describe';
+import { isChordSymbol, romanNumeral } from '../../services/music-theory';
+import { CONFIDENCE_WORDS, chordColorSlots, chordShares, displayChord } from './describe';
 import './analysis.css';
 
 export interface ChordListProps {
 	analysis: SongAnalysis;
 	/** Moves playback to a time in seconds. */
 	onSeek(seconds: number): void;
+	/** Index of the chord playing now, from the playback clock; -1 for none. */
+	currentIndex?: number;
 }
 
 const MAIN_CHORDS = 6;
 
 /**
- * Chords region: the estimated chords in time order. Each change is a button that
- * moves playback there. Following the current chord during playback is Phase 5.
+ * Detected chords in time order. Each change is a button that moves playback there;
+ * the chord playing now is marked. The function (I, IV, V…) is shown only when the
+ * key estimate is "likely", since it depends on the key.
  */
-export function ChordList({ analysis, onSeek }: ChordListProps) {
+export function ChordList({ analysis, onSeek, currentIndex = -1 }: ChordListProps) {
 	const { state } = analysis;
 	if (state.status !== 'done') {
 		const text =
@@ -26,11 +30,16 @@ export function ChordList({ analysis, onSeek }: ChordListProps) {
 					: 'Choose a song to estimate its chords.';
 		return <p className="analysis-muted">{text}</p>;
 	}
-	const events = state.result.chords;
+	const { chords: events, key } = state.result;
 	const shares = chordShares(events).slice(0, MAIN_CHORDS);
 	if (shares.length === 0) {
 		return <p className="analysis-muted">No chords were recognized in this song.</p>;
 	}
+	const slots = chordColorSlots(events);
+	const tonic = key?.confidence.level === 'high' ? key.tonic : undefined;
+	const functionOf = (chord: string) =>
+		tonic !== undefined && isChordSymbol(chord) ? romanNumeral(chord, tonic) : '';
+
 	return (
 		<div className="analysis">
 			<p>
@@ -43,25 +52,34 @@ export function ChordList({ analysis, onSeek }: ChordListProps) {
 				))}
 			</p>
 			<p className="analysis-muted">
-				Select a chord to play from there. Uncertain chords are marked with “?”. Following
-				the current chord as the song plays, and fixing chords, come in the next phase.
+				Select a chord to play from there. Uncertain chords are marked “?”.
+				{tonic === undefined && ' Chord functions show once the key is likely.'}
 			</p>
 			<ol className="analysis-chords" aria-label="Chord changes">
-				{events.map((event) => {
+				{events.map((event, index) => {
 					const name = event.chord ? displayChord(event.chord) : 'No chord';
 					const word = CONFIDENCE_WORDS[event.confidence.level];
 					const alternatives =
 						event.confidence.level !== 'high' && event.alternatives.length > 0
 							? `, or ${event.alternatives.map(displayChord).join(' or ')}`
 							: '';
+					const fn = event.chord ? functionOf(event.chord) : '';
+					const isCurrent = index === currentIndex;
 					return (
 						<li key={event.start}>
 							<button
 								type="button"
-								className={`analysis-chord analysis-chord--${event.confidence.level}`}
+								className={[
+									'analysis-chord',
+									`analysis-chord--${event.confidence.level}`,
+									event.chord ? `chord-color-${slots.get(event.chord) ?? 0}` : '',
+									isCurrent ? 'is-current' : '',
+								].join(' ')}
+								aria-current={isCurrent ? 'true' : undefined}
 								onClick={() => onSeek(event.start)}
-								aria-label={`${describeTime(event.start)}: ${name}${event.chord ? `, ${word}${alternatives}` : ''}`}
+								aria-label={`${describeTime(event.start)}: ${name}${event.chord ? `, ${word}${alternatives}` : ''}${fn ? `, function ${fn}` : ''}${isCurrent ? ', playing now' : ''}`}
 							>
+								<span className="analysis-chord-marker" aria-hidden="true" />
 								<span className="analysis-chord-time">
 									{formatTime(event.start)}
 								</span>
@@ -71,6 +89,8 @@ export function ChordList({ analysis, onSeek }: ChordListProps) {
 										<span aria-hidden="true">?</span>
 									)}
 								</span>
+								<span className="analysis-chord-function">{fn}</span>
+								{isCurrent && <span className="analysis-chord-now">Now</span>}
 							</button>
 						</li>
 					);

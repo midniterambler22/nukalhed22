@@ -20,7 +20,7 @@ export function KeyTempoPanel({ audio, analysis }: KeyTempoPanelProps) {
 				<p role="alert" className="analysis-error">
 					{state.message}
 				</p>
-				<button type="button" className="analysis-button" onClick={analysis.retry}>
+				<button type="button" className="btn" onClick={analysis.retry}>
 					Try again
 				</button>
 			</div>

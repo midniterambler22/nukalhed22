@@ -15,7 +15,8 @@ A browser-based app built with React + TypeScript + Vite. Audio is processed loc
 | Music theory | `src/services/music-theory` | Pitch classes, intervals, scales, chords, transposition | none |
 | Fretboard engine | `src/services/fretboard` | Instrument model (tuning, capo, strings), note↔position mapping, scale positions, register selection | music theory |
 | Audio service | `src/services/audio` | Load, play, pause, seek, loop, speed; exposes playback time | browser audio APIs |
-| Timeline engine | `src/services/state` | Chord events, active-event lookup from playback time, corrections layer | audio service (time only) |
+| Progression timing | `src/services/progression` | Which chord is playing at a time, next/previous change, time markers (corrections layer still to come) | none (times come from the audio element) |
+| Demo song | `src/services/demo` | Synthesizes songs from a score (tests and the in-app demo) and encodes WAV | music theory |
 | Analysis service | `src/services/analysis` | Key, tempo, beat and chord estimates behind a replaceable interface | music theory, audio data |
 | Practice / persistence | `src/services/state` | Saved sessions, preferences (local storage first) | timeline, fretboard |
 | Validation | `src/services/validation` | Validation of files, saved sessions, and tunings | none |
@@ -58,7 +59,17 @@ A browser-based app built with React + TypeScript + Vite. Audio is processed loc
 - SVG, one column per fret in the range, string 1 at the top. Left-handed mirrors the columns. A nut is drawn when the range starts at fret 0, a capo bar when it starts at the capo fret.
 - Roles never rely on color: square = root, circle = scale note, outer ring = chord tone, hollow ring = chord tone outside the scale, plus a text label on every marker and a `FretboardLegend` in words.
 - The board is an ARIA `grid` (rows = strings, gridcells = frets) with one tab stop. Arrow keys move along the drawn neck (mirrored for left-handed), Home/End jump to the ends of a string, Enter/Space/click select. Each cell's accessible name reads like "String 6 (E), fret 5: A, root, chord tone, scale note".
-- `FretboardExplorer` is the workspace control: key, scale, chord symbol, tuning, capo, handedness and "show all notes", with a live readout of the selected note's exact pitch (e.g. "D4"). For pentatonic scales it adds a shape picker (presets Just 1 / 1–2 / 1–3 / 1–4 / All 5 plus a checkbox per shape). The chosen shapes go to `markPositions`, which keeps roles only on notes inside them and records `shapeNumbers` per note, and to `Fretboard`, which labels each shape's fret span above the neck.
+- Colours follow UI_SPEC §7 (red root, orange scale note, blue chord tone); boxes are called "Box N" and each number has its own outline colour, always with its text label.
+
+## Studio workspace (UI spec Phase 1)
+
+`src/App.tsx` lays out the workstation from UI_SPEC §4 and its reference image (`docs/ui-reference.jpg`): `AppHeader`, a Song panel (`SongImport`, `WaveformTimeline`, `NowPlaying`), the Song analysis panel (`AnalysisSummary`, `ChordList`), `WorkspaceTabs` with the selected workspace, the Chord & scale info panel, and `PlaybackControls` in a sticky footer. Shell pieces live in `src/components/layout`.
+
+- **State.** `App` owns the song (`useLocalSong`), its analysis, the instrument settings and `useScaleViewer`, so switching tabs or changing settings keeps both the view state and playback.
+- **Scale Viewer.** `useScaleViewer` (in `src/hooks`) does all the work through the services: the instrument, spelled scale notes, formula, chord tones against the scale (`chordTonesInScale`), every box position, the register filter (`positionsInRegister`) and box filter, and `markPositions`. `ScaleViewer` and `ChordScaleInfo` only render it. Scales without five notes have no boxes yet, so a register limits them to that third of the neck.
+- **Clock.** The timeline reads `usePlaybackTime`. `usePlaybackChord` re-reads the element every frame while playing but re-renders only when the current or next chord changes. Chord colours (`chordColorSlots`) are the same in the timeline and list and always sit next to the chord name.
+- **Responsive.** Three columns above 1200 px; on tablets the workspace takes the full width with the side panels below it (collapsible); on phones one column: song, tabs, Scale Viewer (controls then neck), chord info, analysis. With a mouse, controls are 36 px tall; touch keeps 44 px targets.
+- **Honest gaps.** Tabs for unbuilt workspaces open a short "isn't built yet" page. Time signature, tuning and sections say "not estimated/detected yet". There is no profile, sidebar, loop, metronome or speed control yet, rather than controls that do nothing.
 
 ## Audio service and song player
 
@@ -108,4 +119,6 @@ Timestamps are in seconds (floating point) everywhere.
 | 2026-10-29 | Build order follows SOP §21: analysis before the chord timeline | Mark's decision; manual chord editing becomes the correction layer on top of analysis results |
 | 2026-10-29 | Native `<audio>` element + Web Audio decode; no Tone.js or wavesurfer.js yet | The element gives play, pause, seek, volume and an accurate clock for every format the browser supports; `OfflineAudioContext` gives samples for analysis. A ~40-line SVG waveform covers the overview. Revisit Tone.js for speed change without pitch shift (Phase 6) and wavesurfer.js if we need zoom or regions |
 | 2026-10-29 | 200 MB file limit; analysis decode limited to 20 minutes, mono 44.1 kHz | Keeps the in-browser decode within memory on ordinary laptops and phones; 44.1 kHz is what Essentia.js expects |
+| 2026-10-29 | Studio theme is dark-only for now | UI_SPEC §2 asks for a deep navy workstation; all colours are tokens in `global.css`, so a light theme can be added later |
+| 2026-10-29 | Workspace tabs follow the spec's reference image (Jam Master, Riff Builder, Chord Viewer, Scale Viewer, Song Info); the workspace itself is "Song Analysis" | The spec lists six work areas but its reference shows the analysis as the page around the tabs; this avoids a tab that duplicates the left panel |
 | 2026-10-29 | Own analysis DSP instead of Essentia.js | Essentia.js is AGPL-3.0 (would bind the app's licence), ~10 MB of WASM, and unpublished since 2022. Meyda (MIT) only extracts features. The classic methods needed (chroma, onset autocorrelation + DP beats, key profiles, chord templates + Viterbi) are ~900 lines, testable, and run in a worker on any browser. Revisit a model-based chord recognizer if real-recording accuracy is poor |

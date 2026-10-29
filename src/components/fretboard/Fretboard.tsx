@@ -27,6 +27,8 @@ export interface FretboardProps {
 	onSelect?: (position: MarkedPosition) => void;
 	/** Scale shapes to label above the neck (the same ones passed to `markPositions`). */
 	shapes?: readonly ScalePosition[];
+	/** Label for a shape's band above the neck; defaults to "Box N". */
+	shapeLabel?: (shape: ScalePosition) => string;
 }
 
 const SHAPE_LANE_HEIGHT = 20;
@@ -46,6 +48,7 @@ export function Fretboard({
 	selected = null,
 	onSelect,
 	shapes,
+	shapeLabel = (shape) => `Box ${shape.number}`,
 }: FretboardProps) {
 	const strings = stringCount(instrument);
 	const lowest = lowestPlayableFret(instrument);
@@ -158,7 +161,18 @@ export function Fretboard({
 								const width = Math.abs(xMax - xMin) + layout.cellWidth - 4;
 								const y = 6 + (index % 2) * (SHAPE_LANE_HEIGHT + SHAPE_LANE_GAP);
 								return (
-									<g key={`shape-${shape.number}-${shape.startFret}`}>
+									<g
+										key={`shape-${shape.number}-${shape.startFret}`}
+										className={`fretboard-box--${shape.number}`}
+									>
+										<rect
+											className="fretboard-box-outline"
+											x={x}
+											y={topY - layout.stringGap / 2 + 2}
+											width={width}
+											height={bottomY - topY + layout.stringGap - 4}
+											rx={6}
+										/>
 										<rect
 											className="fretboard-shape-band"
 											x={x}
@@ -174,7 +188,7 @@ export function Fretboard({
 											textAnchor="middle"
 											dominantBaseline="central"
 										>
-											Shape {shape.number}
+											{shapeLabel(shape)}
 										</text>
 									</g>
 								);

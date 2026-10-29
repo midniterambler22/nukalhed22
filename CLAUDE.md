@@ -14,6 +14,7 @@ Before any substantial work, read the project documents in this order:
 Then check the working documents:
 
 - [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md): current milestone, tasks, and progress. Update it as work completes.
+- [UI_SPEC.md](UI_SPEC.md): Mark's UI/UX design spec (verbatim) and its reference image, [docs/ui-reference.jpg](docs/ui-reference.jpg). Don't edit its wording.
 - [ARCHITECTURE.md](ARCHITECTURE.md): module boundaries and recorded decisions.
 - [TESTING.md](TESTING.md): how to test, reference values, and known failures.
 - [CHANGELOG.md](CHANGELOG.md): significant changes.

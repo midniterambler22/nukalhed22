@@ -1,8 +1,7 @@
 /** Reads back what `encodeWav` wrote. Tests only. */
 export function decodeWavForTest(buffer: ArrayBuffer) {
 	const view = new DataView(buffer);
-	const text = (offset: number) =>
-		String.fromCharCode(...new Uint8Array(buffer, offset, 4));
+	const text = (offset: number) => String.fromCharCode(...new Uint8Array(buffer, offset, 4));
 	if (text(0) !== 'RIFF' || text(8) !== 'WAVE' || text(36) !== 'data') {
 		throw new Error('Not a WAV file this helper understands');
 	}
