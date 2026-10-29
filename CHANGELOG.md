@@ -4,6 +4,10 @@ Significant changes and releases.
 
 ## Unreleased
 
+### Changed
+
+- Build order now follows SOP §21: audio playback, then automated analysis, then the chord timeline and practice features.
+
 ### Added
 
 - App scaffold: Vite + React + TypeScript (strict), ESLint, Prettier (tabs), Vitest.
