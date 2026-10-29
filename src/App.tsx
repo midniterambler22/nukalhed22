@@ -1,3 +1,5 @@
+import { FretboardExplorer } from './components/fretboard';
+
 /**
  * App shell. Each region of the main workspace is a placeholder until its phase lands
  * (see IMPLEMENTATION_PLAN.md). Placeholders say so plainly instead of showing fake data.
@@ -6,7 +8,6 @@ const WORKSPACE_REGIONS = [
 	{ id: 'player', title: 'Song and playback', status: 'Not available yet (Phase 3)' },
 	{ id: 'key', title: 'Key and tempo', status: 'Not available yet (Phase 5)' },
 	{ id: 'chords', title: 'Current and upcoming chords', status: 'Not available yet (Phase 3)' },
-	{ id: 'fretboard', title: 'Fretboard', status: 'Not available yet (Phase 2)' },
 	{
 		id: 'scale',
 		title: 'Recommended scale and starting fret',
@@ -32,6 +33,13 @@ export function App() {
 						<p className="placeholder">{region.status}</p>
 					</section>
 				))}
+				<section
+					className="workspace-region workspace-region--fretboard"
+					aria-labelledby="region-fretboard"
+				>
+					<h2 id="region-fretboard">Fretboard</h2>
+					<FretboardExplorer />
+				</section>
 			</main>
 		</>
 	);

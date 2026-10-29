@@ -55,12 +55,21 @@ function mod12(value: number): number {
  */
 function assertPentatonicFormula(intervals: readonly number[]): void {
 	if (intervals.length !== POSITION_COUNT) {
-		throw new RangeError(`A pentatonic scale needs ${POSITION_COUNT} intervals; got ${intervals.length}.`);
+		throw new RangeError(
+			`A pentatonic scale needs ${POSITION_COUNT} intervals; got ${intervals.length}.`,
+		);
 	}
 	intervals.forEach((interval, index) => {
 		const previous = index === 0 ? -1 : (intervals[index - 1] ?? -1);
-		if (!Number.isInteger(interval) || interval <= previous || interval > 11 || (index === 0 && interval !== 0)) {
-			throw new RangeError(`Scale intervals must start at 0 and ascend within 0–11; got ${intervals.join(', ')}.`);
+		if (
+			!Number.isInteger(interval) ||
+			interval <= previous ||
+			interval > 11 ||
+			(index === 0 && interval !== 0)
+		) {
+			throw new RangeError(
+				`Scale intervals must start at 0 and ascend within 0–11; got ${intervals.join(', ')}.`,
+			);
 		}
 	});
 }
@@ -82,7 +91,12 @@ function nextScaleMidi(midi: number, root: number, intervals: readonly number[])
 	return candidate;
 }
 
-function toPositionNote(instrument: Instrument, string: number, fret: number, root: number): PositionNote {
+function toPositionNote(
+	instrument: Instrument,
+	string: number,
+	fret: number,
+	root: number,
+): PositionNote {
 	const position = positionAt(instrument, string, fret);
 	const interval = mod12(position.pitchClass - root);
 	return { ...position, interval, isRoot: interval === 0 };
@@ -143,7 +157,11 @@ function buildPosition(
  * @param root pitch class of the scale root (0 = C)
  * @param intervals pentatonic formula from the theory module, e.g. minor pentatonic 0 3 5 7 10
  */
-export function getScalePositions(instrument: Instrument, root: number, intervals: readonly number[]): ScalePosition[] {
+export function getScalePositions(
+	instrument: Instrument,
+	root: number,
+	intervals: readonly number[],
+): ScalePosition[] {
 	assertPentatonicFormula(intervals);
 	const rootPitchClass = mod12(root);
 	const strings = stringsLowToHigh(instrument);
@@ -154,11 +172,20 @@ export function getScalePositions(instrument: Instrument, root: number, interval
 	}
 
 	for (let fret = lowestPlayableFret(instrument); fret <= instrument.fretCount; fret++) {
-		const degree = intervals.indexOf(mod12(positionAt(instrument, lowest, fret).pitchClass - rootPitchClass));
+		const degree = intervals.indexOf(
+			mod12(positionAt(instrument, lowest, fret).pitchClass - rootPitchClass),
+		);
 		if (degree === -1) {
 			continue;
 		}
-		const position = buildPosition(instrument, strings, rootPitchClass, intervals, degree + 1, fret);
+		const position = buildPosition(
+			instrument,
+			strings,
+			rootPitchClass,
+			intervals,
+			degree + 1,
+			fret,
+		);
 		if (position) {
 			positions.push(position);
 		}
@@ -168,21 +195,31 @@ export function getScalePositions(instrument: Instrument, root: number, interval
 
 /** The exact string/fret locations two positions have in common. */
 export function getSharedNotes(a: ScalePosition, b: ScalePosition): PositionNote[] {
-	return a.notes.filter((note) => b.notes.some((other) => other.string === note.string && other.fret === note.fret));
+	return a.notes.filter((note) =>
+		b.notes.some((other) => other.string === note.string && other.fret === note.fret),
+	);
 }
 
 function indexOfPosition(positions: readonly ScalePosition[], position: ScalePosition): number {
-	return positions.findIndex((p) => p.number === position.number && p.startFret === position.startFret);
+	return positions.findIndex(
+		(p) => p.number === position.number && p.startFret === position.startFret,
+	);
 }
 
 /** The connected position one step up the neck, or null at the top. */
-export function getNextPosition(positions: readonly ScalePosition[], current: ScalePosition): ScalePosition | null {
+export function getNextPosition(
+	positions: readonly ScalePosition[],
+	current: ScalePosition,
+): ScalePosition | null {
 	const index = indexOfPosition(positions, current);
 	return index === -1 ? null : (positions[index + 1] ?? null);
 }
 
 /** The connected position one step down the neck, or null at the bottom. */
-export function getPreviousPosition(positions: readonly ScalePosition[], current: ScalePosition): ScalePosition | null {
+export function getPreviousPosition(
+	positions: readonly ScalePosition[],
+	current: ScalePosition,
+): ScalePosition | null {
 	const index = indexOfPosition(positions, current);
 	return index <= 0 ? null : (positions[index - 1] ?? null);
 }
@@ -219,5 +256,7 @@ export function selectRegister(
 		return center >= min && (center < max || (isTopRegister && center <= max));
 	});
 	const candidates = inside.length > 0 ? inside : [...positions];
-	return candidates.sort((a, b) => Math.abs(centerFret(a) - target) - Math.abs(centerFret(b) - target));
+	return candidates.sort(
+		(a, b) => Math.abs(centerFret(a) - target) - Math.abs(centerFret(b) - target),
+	);
 }

@@ -211,7 +211,9 @@ export function Fretboard({
 							const role = position.isRoot
 								? 'root'
 								: position.isChordTone
-									? 'chord'
+									? position.isScaleNote
+										? 'chord'
+										: 'outside'
 									: 'scale';
 							return (
 								<g
@@ -282,9 +284,11 @@ export function Fretboard({
 									{(marked || showAllNotes) && (
 										<text
 											className={
-												marked
-													? 'fretboard-label'
-													: 'fretboard-label fretboard-label--plain'
+												!marked
+													? 'fretboard-label fretboard-label--plain'
+													: role === 'outside'
+														? 'fretboard-label fretboard-label--outside'
+														: 'fretboard-label'
 											}
 											x={x}
 											y={y}

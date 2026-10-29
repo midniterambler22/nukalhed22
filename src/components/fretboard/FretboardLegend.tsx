@@ -2,10 +2,15 @@ import './fretboard.css';
 
 export interface FretboardLegendProps {
 	showChordTones?: boolean;
+	/** Show the entry for chord tones that aren't in the scale. */
+	showOutsideChordTones?: boolean;
 }
 
 /** Explains marker shapes in words, so roles never depend on color alone. */
-export function FretboardLegend({ showChordTones = true }: FretboardLegendProps) {
+export function FretboardLegend({
+	showChordTones = true,
+	showOutsideChordTones = false,
+}: FretboardLegendProps) {
 	return (
 		<ul className="fretboard-legend" aria-label="Fretboard legend">
 			<li>
@@ -44,6 +49,20 @@ export function FretboardLegend({ showChordTones = true }: FretboardLegendProps)
 						/>
 					</svg>
 					Outer ring: chord tone
+				</li>
+			)}
+			{showOutsideChordTones && (
+				<li>
+					<svg width="26" height="26" aria-hidden="true">
+						<circle className="fretboard-ring" cx="13" cy="13" r="11" />
+						<circle
+							className="fretboard-marker fretboard-marker--outside"
+							cx="13"
+							cy="13"
+							r="7"
+						/>
+					</svg>
+					Hollow ring: chord tone outside the scale
 				</li>
 			)}
 		</ul>

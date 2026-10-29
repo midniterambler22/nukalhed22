@@ -75,6 +75,21 @@ describe('Fretboard', () => {
 		expect(container.querySelectorAll('.fretboard-ring')).toHaveLength(chordCount);
 	});
 
+	it('draws chord tones outside the scale hollow', () => {
+		const positions = markPositions(
+			guitar,
+			{ root: 9, scale: A_MINOR_PENTATONIC, chordTones: chordPitchClasses('E7') },
+			{ min: 3, max: 5 },
+		);
+		const { container } = render(
+			<Fretboard instrument={guitar} positions={positions} noteName={noteName} label="E7" />,
+		);
+		// G♯ is in E7 but not in A minor pentatonic.
+		const cell = screen.getByRole('gridcell', { name: 'String 6 (E), fret 4: G♯, chord tone' });
+		expect(cell.querySelector('.fretboard-marker--outside')).toBeTruthy();
+		expect(container.querySelectorAll('.fretboard-marker--outside').length).toBeGreaterThan(0);
+	});
+
 	it('hides labels for unmarked notes unless showAllNotes', () => {
 		const { container, rerender } = renderBoard(guitar);
 		expect(container.querySelectorAll('.fretboard-label--plain')).toHaveLength(0);
@@ -207,9 +222,10 @@ describe('Fretboard', () => {
 
 describe('FretboardLegend', () => {
 	it('names each role in words', () => {
-		render(<FretboardLegend />);
+		render(<FretboardLegend showOutsideChordTones />);
 		expect(screen.getByText('Square: root')).toBeTruthy();
 		expect(screen.getByText('Circle: scale note')).toBeTruthy();
 		expect(screen.getByText('Outer ring: chord tone')).toBeTruthy();
+		expect(screen.getByText('Hollow ring: chord tone outside the scale')).toBeTruthy();
 	});
 });

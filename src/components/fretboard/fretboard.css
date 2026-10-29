@@ -13,6 +13,7 @@
 	--fb-ring: #7a4b00;
 	--fb-focus: #0b57d0;
 	--fb-selected: #1d1d1d;
+	--fb-error: #a3201f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -31,6 +32,7 @@
 		--fb-ring: #ffc561;
 		--fb-focus: #a8c7ff;
 		--fb-selected: #f1ede4;
+		--fb-error: #ff8a80;
 	}
 }
 
@@ -49,6 +51,7 @@
 	--fb-ring: #ffc561;
 	--fb-focus: #a8c7ff;
 	--fb-selected: #f1ede4;
+	--fb-error: #ff8a80;
 }
 
 .fretboard-scroll {
@@ -119,6 +122,10 @@
 	fill: var(--fb-scale);
 }
 
+.fretboard-marker--outside {
+	fill: var(--fb-wood);
+}
+
 .fretboard-ring {
 	fill: none;
 	stroke: var(--fb-ring);
@@ -130,6 +137,10 @@
 	font-size: 13px;
 	font-weight: 600;
 	pointer-events: none;
+}
+
+.fretboard-label--outside {
+	fill: var(--fb-text);
 }
 
 .fretboard-label--plain {
@@ -175,4 +186,44 @@
 	display: flex;
 	align-items: center;
 	gap: 6px;
+}
+
+.fretboard-cell:focus-visible {
+	outline: none;
+}
+
+.fretboard-controls {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem 1rem;
+	align-items: flex-end;
+	margin-bottom: 0.75rem;
+}
+
+.fretboard-controls label {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	font-size: 0.9rem;
+}
+
+.fretboard-controls .fretboard-check {
+	flex-direction: row;
+	align-items: center;
+	min-height: 2rem;
+}
+
+.fretboard-controls select,
+.fretboard-controls input[type='text'] {
+	min-height: 2rem;
+	font: inherit;
+}
+
+.fretboard-error {
+	color: var(--fb-error);
+	font-weight: 600;
+}
+
+.fretboard-readout {
+	margin: 0.5rem 0 0;
 }
