@@ -7,7 +7,7 @@ import {
 	type Instrument,
 	type MarkedPosition,
 } from '../../services/fretboard';
-import { midiToPitchClass, type PitchClass } from '../../services/fretboard/pitch';
+import { midiToPitchClass, type PitchClass } from '../../services/music-theory';
 import { describePosition } from './describe';
 import { computeLayout, inlayDots } from './layout';
 import './fretboard.css';
@@ -30,7 +30,15 @@ type Cell = Pick<FretPosition, 'string' | 'fret'>;
 
 const key = (cell: Cell) => `${cell.string}:${cell.fret}`;
 
-export function Fretboard({ instrument, positions, noteName, label, showAllNotes = false, selected = null, onSelect }: FretboardProps) {
+export function Fretboard({
+	instrument,
+	positions,
+	noteName,
+	label,
+	showAllNotes = false,
+	selected = null,
+	onSelect,
+}: FretboardProps) {
 	const strings = stringCount(instrument);
 	const lowest = lowestPlayableFret(instrument);
 	const left = instrument.handedness === 'left';
@@ -46,7 +54,8 @@ export function Fretboard({ instrument, positions, noteName, label, showAllNotes
 	);
 	const stringNames = useMemo(() => {
 		const names: string[] = [];
-		for (let s = 1; s <= strings; s++) names.push(noteName(midiToPitchClass(openMidiForString(instrument, s))));
+		for (let s = 1; s <= strings; s++)
+			names.push(noteName(midiToPitchClass(openMidiForString(instrument, s))));
 		return names;
 	}, [instrument, strings, noteName]);
 
@@ -118,34 +127,69 @@ export function Fretboard({ instrument, positions, noteName, label, showAllNotes
 						const midY = (topY + bottomY) / 2;
 						if (dots === 0 || fret === lowest) return null;
 						return dots === 1 ? (
-							<circle key={`inlay-${fret}`} className="fretboard-inlay" cx={x} cy={midY} r={6} />
+							<circle
+								key={`inlay-${fret}`}
+								className="fretboard-inlay"
+								cx={x}
+								cy={midY}
+								r={6}
+							/>
 						) : (
 							<g key={`inlay-${fret}`}>
-								<circle className="fretboard-inlay" cx={x} cy={midY - layout.stringGap} r={6} />
-								<circle className="fretboard-inlay" cx={x} cy={midY + layout.stringGap} r={6} />
+								<circle
+									className="fretboard-inlay"
+									cx={x}
+									cy={midY - layout.stringGap}
+									r={6}
+								/>
+								<circle
+									className="fretboard-inlay"
+									cx={x}
+									cy={midY + layout.stringGap}
+									r={6}
+								/>
 							</g>
 						);
 					})}
 					{layout.columns.map((fret) => {
 						const isNutSide = layout.hasOpenColumn && fret === lowest;
-						const className = isNutSide ? (lowest === 0 ? 'fretboard-nut' : 'fretboard-capo') : 'fretboard-wire';
+						const className = isNutSide
+							? lowest === 0
+								? 'fretboard-nut'
+								: 'fretboard-capo'
+							: 'fretboard-wire';
 						return (
-							<line key={`wire-${fret}`} className={className} x1={layout.wireX(fret)} x2={layout.wireX(fret)} y1={topY - 8} y2={bottomY + 8} />
+							<line
+								key={`wire-${fret}`}
+								className={className}
+								x1={layout.wireX(fret)}
+								x2={layout.wireX(fret)}
+								y1={topY - 8}
+								y2={bottomY + 8}
+							/>
 						);
 					})}
 					{Array.from({ length: strings }, (_, i) => i + 1).map((string) => (
 						<line
 							key={`string-${string}`}
 							className="fretboard-string"
-							style={{ strokeWidth: 1 + (string - 1) * (2 / Math.max(1, strings - 1)) }}
-							x1={layout.cellX(layout.columns[0]!) - layout.cellWidth / 2}
-							x2={layout.cellX(layout.columns[layout.columns.length - 1]!) + layout.cellWidth / 2}
+							style={{
+								strokeWidth: 1 + (string - 1) * (2 / Math.max(1, strings - 1)),
+							}}
+							x1={layout.startX}
+							x2={layout.endX}
 							y1={layout.stringY(string)}
 							y2={layout.stringY(string)}
 						/>
 					))}
 					{layout.columns.map((fret) => (
-						<text key={`num-${fret}`} className="fretboard-fret-number" x={layout.cellX(fret)} y={bottomY + 30} textAnchor="middle">
+						<text
+							key={`num-${fret}`}
+							className="fretboard-fret-number"
+							x={layout.cellX(fret)}
+							y={bottomY + 30}
+							textAnchor="middle"
+						>
 							{fret === lowest && lowest > 0 ? `${fret} capo` : fret}
 						</text>
 					))}
@@ -157,19 +201,30 @@ export function Fretboard({ instrument, positions, noteName, label, showAllNotes
 							const position = byCell.get(key({ string, fret }));
 							if (!position) return null;
 							const isActive = active?.string === string && active.fret === fret;
-							const isSelected = selected?.string === string && selected.fret === fret;
-							const marked = position.isRoot || position.isChordTone || position.isScaleNote;
+							const isSelected =
+								selected?.string === string && selected.fret === fret;
+							const marked =
+								position.isRoot || position.isChordTone || position.isScaleNote;
 							const x = layout.cellX(fret);
 							const y = layout.stringY(string);
 							const name = noteName(position.pitchClass);
-							const role = position.isRoot ? 'root' : position.isChordTone ? 'chord' : 'scale';
+							const role = position.isRoot
+								? 'root'
+								: position.isChordTone
+									? 'chord'
+									: 'scale';
 							return (
 								<g
 									key={`cell-${fret}`}
 									id={cellId(position)}
 									role="gridcell"
 									aria-colindex={columnIndex + 1}
-									aria-label={describePosition(position, name, stringNames[string - 1]!, lowest)}
+									aria-label={describePosition(
+										position,
+										name,
+										stringNames[string - 1] ?? '',
+										lowest,
+									)}
 									aria-selected={onSelect ? isSelected : undefined}
 									tabIndex={isActive ? 0 : -1}
 									className="fretboard-cell"
@@ -180,23 +235,57 @@ export function Fretboard({ instrument, positions, noteName, label, showAllNotes
 									onKeyDown={(event) => onKeyDown(event, position)}
 									onFocus={() => setFocusCell(position)}
 								>
-									<rect className="fretboard-hit" x={x - layout.cellWidth / 2} y={y - layout.stringGap / 2} width={layout.cellWidth} height={layout.stringGap} />
-									{marked && position.isChordTone && (
-										position.isRoot ? (
-											<rect className="fretboard-ring" x={x - markerR - 4} y={y - markerR - 4} width={(markerR + 4) * 2} height={(markerR + 4) * 2} rx={5} />
+									<rect
+										className="fretboard-hit"
+										x={x - layout.cellWidth / 2}
+										y={y - layout.stringGap / 2}
+										width={layout.cellWidth}
+										height={layout.stringGap}
+									/>
+									{marked &&
+										position.isChordTone &&
+										(position.isRoot ? (
+											<rect
+												className="fretboard-ring"
+												x={x - markerR - 4}
+												y={y - markerR - 4}
+												width={(markerR + 4) * 2}
+												height={(markerR + 4) * 2}
+												rx={5}
+											/>
 										) : (
-											<circle className="fretboard-ring" cx={x} cy={y} r={markerR + 4} />
-										)
-									)}
+											<circle
+												className="fretboard-ring"
+												cx={x}
+												cy={y}
+												r={markerR + 4}
+											/>
+										))}
 									{marked &&
 										(position.isRoot ? (
-											<rect className={`fretboard-marker fretboard-marker--${role}`} x={x - markerR} y={y - markerR} width={markerR * 2} height={markerR * 2} rx={3} />
+											<rect
+												className={`fretboard-marker fretboard-marker--${role}`}
+												x={x - markerR}
+												y={y - markerR}
+												width={markerR * 2}
+												height={markerR * 2}
+												rx={3}
+											/>
 										) : (
-											<circle className={`fretboard-marker fretboard-marker--${role}`} cx={x} cy={y} r={markerR} />
+											<circle
+												className={`fretboard-marker fretboard-marker--${role}`}
+												cx={x}
+												cy={y}
+												r={markerR}
+											/>
 										))}
 									{(marked || showAllNotes) && (
 										<text
-											className={marked ? 'fretboard-label' : 'fretboard-label fretboard-label--plain'}
+											className={
+												marked
+													? 'fretboard-label'
+													: 'fretboard-label fretboard-label--plain'
+											}
 											x={x}
 											y={y}
 											textAnchor="middle"
@@ -206,9 +295,25 @@ export function Fretboard({ instrument, positions, noteName, label, showAllNotes
 											{name}
 										</text>
 									)}
-									{isSelected && <rect className="fretboard-selected" x={x - layout.cellWidth / 2 + 3} y={y - layout.stringGap / 2 + 1} width={layout.cellWidth - 6} height={layout.stringGap - 2} rx={6} />}
+									{isSelected && (
+										<rect
+											className="fretboard-selected"
+											x={x - layout.cellWidth / 2 + 3}
+											y={y - layout.stringGap / 2 + 1}
+											width={layout.cellWidth - 6}
+											height={layout.stringGap - 2}
+											rx={6}
+										/>
+									)}
 									{isActive && hasFocus && (
-										<rect className="fretboard-focus" x={x - layout.cellWidth / 2 + 1} y={y - layout.stringGap / 2 - 1} width={layout.cellWidth - 2} height={layout.stringGap + 2} rx={7} />
+										<rect
+											className="fretboard-focus"
+											x={x - layout.cellWidth / 2 + 1}
+											y={y - layout.stringGap / 2 - 1}
+											width={layout.cellWidth - 2}
+											height={layout.stringGap + 2}
+											rx={7}
+										/>
 									)}
 								</g>
 							);

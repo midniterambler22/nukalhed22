@@ -1,5 +1,5 @@
 import { lowestPlayableFret, openMidiForString, stringCount } from './instrument';
-import { midiToPitchClass, type PitchClass } from './pitch';
+import { midiToPitchClass, type MidiNote, type PitchClass } from '../music-theory';
 import type { FretPosition, FretRange, Instrument } from './types';
 
 export function isPlayable(instrument: Instrument, string: number, fret: number): boolean {
@@ -14,7 +14,7 @@ export function isPlayable(instrument: Instrument, string: number, fret: number)
 }
 
 /** MIDI pitch sounded at (string, absolute fret). Throws RangeError if unplayable. */
-export function pitchAt(instrument: Instrument, string: number, fret: number): number {
+export function pitchAt(instrument: Instrument, string: number, fret: number): MidiNote {
 	if (!isPlayable(instrument, string, fret)) {
 		throw new RangeError(
 			`String ${string}, fret ${fret} isn't playable (strings 1–${stringCount(instrument)}, frets ${lowestPlayableFret(instrument)}–${instrument.fretCount}).`,
@@ -59,15 +59,19 @@ export function allPositions(instrument: Instrument, range?: FretRange): FretPos
 	return positions;
 }
 
-export type PitchQuery = { pitchClass: PitchClass } | { midi: number };
+export type PitchQuery = { pitchClass: PitchClass } | { midi: MidiNote };
 
 /**
  * Every position that sounds a pitch class (any octave) or an exact MIDI pitch.
  */
-export function findPositions(instrument: Instrument, query: PitchQuery, range?: FretRange): FretPosition[] {
+export function findPositions(
+	instrument: Instrument,
+	query: PitchQuery,
+	range?: FretRange,
+): FretPosition[] {
 	const matches =
 		'midi' in query
 			? (p: FretPosition) => p.midi === query.midi
-			: (p: FretPosition) => p.pitchClass === midiToPitchClass(query.pitchClass);
+			: (p: FretPosition) => p.pitchClass === query.pitchClass;
 	return allPositions(instrument, range).filter(matches);
 }

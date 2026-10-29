@@ -9,10 +9,15 @@ export const STANDARD_TUNING: Tuning = {
 	openMidi: [40, 45, 50, 55, 59, 64],
 };
 
+export const DROP_D_TUNING: Tuning = {
+	name: 'Drop D (D A D G B E)',
+	openMidi: [38, 45, 50, 55, 59, 64],
+};
+
 export const TUNINGS: readonly Tuning[] = [
 	STANDARD_TUNING,
 	{ name: 'Half step down (E♭ A♭ D♭ G♭ B♭ E♭)', openMidi: [39, 44, 49, 54, 58, 63] },
-	{ name: 'Drop D (D A D G B E)', openMidi: [38, 45, 50, 55, 59, 64] },
+	DROP_D_TUNING,
 	{ name: 'DADGAD (D A D G A D)', openMidi: [38, 45, 50, 55, 57, 62] },
 	{ name: 'Open G (D G D G B D)', openMidi: [38, 43, 50, 55, 59, 62] },
 	{ name: 'Open D (D A D F♯ A D)', openMidi: [38, 45, 50, 54, 57, 62] },

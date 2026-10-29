@@ -17,7 +17,11 @@ export function describePosition(
 	lowestPlayable: number,
 ): string {
 	const fretText =
-		position.fret === lowestPlayable ? (lowestPlayable === 0 ? 'open' : `fret ${position.fret}, capo`) : `fret ${position.fret}`;
+		position.fret === lowestPlayable
+			? lowestPlayable === 0
+				? 'open'
+				: `fret ${position.fret}, capo`
+			: `fret ${position.fret}`;
 	const roles = roleWords(position);
 	return `String ${position.string} (${stringName}), ${fretText}: ${noteName}${roles.length ? `, ${roles.join(', ')}` : ''}`;
 }

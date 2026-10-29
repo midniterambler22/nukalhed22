@@ -1,3 +1,4 @@
+import type { MidiNote } from '../music-theory';
 import { STANDARD_TUNING } from './tunings';
 import type { Handedness, Instrument, InstrumentError, InstrumentResult, Tuning } from './types';
 
@@ -94,7 +95,7 @@ export function stringCount(instrument: Instrument): number {
 }
 
 /** Open pitch for a string number (1 = highest-pitched string). */
-export function openMidiForString(instrument: Instrument, string: number): number {
+export function openMidiForString(instrument: Instrument, string: number): MidiNote {
 	const count = stringCount(instrument);
 	if (!Number.isInteger(string) || string < 1 || string > count) {
 		throw new RangeError(`String must be 1–${count}; got ${string}.`);

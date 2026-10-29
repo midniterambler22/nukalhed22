@@ -34,18 +34,42 @@ describe('createInstrument', () => {
 	});
 
 	it.each([
-		['too few strings', { tuning: { name: 't', openMidi: [40, 45, 50] } }, 'invalid-string-count'],
-		['too many strings', { tuning: { name: 't', openMidi: Array(13).fill(40) } }, 'invalid-string-count'],
-		['non-integer pitch', { tuning: { name: 't', openMidi: [40, 45, 50.5, 55, 59, 64] } }, 'invalid-open-pitch'],
-		['negative pitch', { tuning: { name: 't', openMidi: [-1, 45, 50, 55, 59, 64] } }, 'invalid-open-pitch'],
-		['NaN pitch', { tuning: { name: 't', openMidi: [Number.NaN, 45, 50, 55, 59, 64] } }, 'invalid-open-pitch'],
+		[
+			'too few strings',
+			{ tuning: { name: 't', openMidi: [40, 45, 50] } },
+			'invalid-string-count',
+		],
+		[
+			'too many strings',
+			{ tuning: { name: 't', openMidi: Array(13).fill(40) } },
+			'invalid-string-count',
+		],
+		[
+			'non-integer pitch',
+			{ tuning: { name: 't', openMidi: [40, 45, 50.5, 55, 59, 64] } },
+			'invalid-open-pitch',
+		],
+		[
+			'negative pitch',
+			{ tuning: { name: 't', openMidi: [-1, 45, 50, 55, 59, 64] } },
+			'invalid-open-pitch',
+		],
+		[
+			'NaN pitch',
+			{ tuning: { name: 't', openMidi: [Number.NaN, 45, 50, 55, 59, 64] } },
+			'invalid-open-pitch',
+		],
 		['too few frets', { fretCount: 11 }, 'invalid-fret-count'],
 		['too many frets', { fretCount: 37 }, 'invalid-fret-count'],
 		['fractional frets', { fretCount: 21.5 }, 'invalid-fret-count'],
 		['negative capo', { capo: -1 }, 'invalid-capo'],
 		['fractional capo', { capo: 2.5 }, 'invalid-capo'],
 		['capo on the last fret', { capo: 22 }, 'invalid-capo'],
-		['pitch above MIDI 127', { tuning: { name: 't', openMidi: [100, 105, 110, 115, 119, 124] } }, 'pitch-out-of-range'],
+		[
+			'pitch above MIDI 127',
+			{ tuning: { name: 't', openMidi: [100, 105, 110, 115, 119, 124] } },
+			'pitch-out-of-range',
+		],
 	] as const)('rejects %s', (_label, options, code) => {
 		const result = createInstrument(options);
 		expect(result.ok).toBe(false);
@@ -57,7 +81,10 @@ describe('createInstrument', () => {
 		const result = createInstrument({ fretCount: 5, capo: -1 });
 		expect(result.ok).toBe(false);
 		if (result.ok) return;
-		expect(result.errors.map((e) => e.code).sort()).toEqual(['invalid-capo', 'invalid-fret-count']);
+		expect(result.errors.map((e) => e.code).sort()).toEqual([
+			'invalid-capo',
+			'invalid-fret-count',
+		]);
 	});
 
 	it('createInstrumentOrThrow throws a RangeError on invalid input', () => {
@@ -76,9 +103,13 @@ describe('string numbering', () => {
 	});
 
 	it('works for other string counts (7-string, 4-string bass)', () => {
-		const sevenString = createInstrumentOrThrow({ tuning: { name: '7', openMidi: [35, ...STANDARD_TUNING.openMidi] } });
+		const sevenString = createInstrumentOrThrow({
+			tuning: { name: '7', openMidi: [35, ...STANDARD_TUNING.openMidi] },
+		});
 		expect(openMidiForString(sevenString, 7)).toBe(35); // B1
-		const bass = createInstrumentOrThrow({ tuning: { name: 'bass', openMidi: [28, 33, 38, 43] } });
+		const bass = createInstrumentOrThrow({
+			tuning: { name: 'bass', openMidi: [28, 33, 38, 43] },
+		});
 		expect(openMidiForString(bass, 1)).toBe(43); // G2
 		expect(openMidiForString(bass, 4)).toBe(28); // E1
 	});

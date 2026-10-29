@@ -2,19 +2,42 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createInstrumentOrThrow, markPositions, type Instrument } from '../../services/fretboard';
+import {
+	chordPitchClasses,
+	formatNote,
+	parseChordSymbol,
+	scalePitchClasses,
+	spellPitchClass,
+	type PitchClass,
+} from '../../services/music-theory';
 import { Fretboard } from './Fretboard';
 import { FretboardLegend } from './FretboardLegend';
 
 afterEach(cleanup);
 
-// Test-only spelling with sharps. Real spelling comes from the theory module.
-const SHARP_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
-const noteName = (pc: number) => SHARP_NAMES[pc]!;
-const A_MINOR_PENTATONIC = [9, 0, 2, 4, 7];
+const noteName = (pc: PitchClass) => formatNote(spellPitchClass(pc, 'sharp'), 'unicode');
+const A_MINOR_PENTATONIC = scalePitchClasses(9, 'minor-pentatonic');
+const A_MINOR_CHORD = chordPitchClasses(parseChordSymbol('Am'));
 
-function renderBoard(instrument: Instrument, range = { min: 5, max: 8 }, extra: Partial<Parameters<typeof Fretboard>[0]> = {}) {
-	const positions = markPositions(instrument, { root: 9, scale: A_MINOR_PENTATONIC, chordTones: [9, 0, 4] }, range);
-	return render(<Fretboard instrument={instrument} positions={positions} noteName={noteName} label="A minor pentatonic" {...extra} />);
+function renderBoard(
+	instrument: Instrument,
+	range = { min: 5, max: 8 },
+	extra: Partial<Parameters<typeof Fretboard>[0]> = {},
+) {
+	const positions = markPositions(
+		instrument,
+		{ root: 9, scale: A_MINOR_PENTATONIC, chordTones: A_MINOR_CHORD },
+		range,
+	);
+	return render(
+		<Fretboard
+			instrument={instrument}
+			positions={positions}
+			noteName={noteName}
+			label="A minor pentatonic"
+			{...extra}
+		/>,
+	);
 }
 
 describe('Fretboard', () => {
@@ -25,8 +48,14 @@ describe('Fretboard', () => {
 		expect(screen.getByRole('grid', { name: 'A minor pentatonic' })).toBeTruthy();
 		expect(screen.getAllByRole('row')).toHaveLength(6);
 		expect(screen.getAllByRole('gridcell')).toHaveLength(6 * 4);
-		expect(screen.getByRole('gridcell', { name: 'String 6 (E), fret 5: A, root, chord tone, scale note' })).toBeTruthy();
-		expect(screen.getByRole('gridcell', { name: 'String 5 (A), fret 5: D, scale note' })).toBeTruthy();
+		expect(
+			screen.getByRole('gridcell', {
+				name: 'String 6 (E), fret 5: A, root, chord tone, scale note',
+			}),
+		).toBeTruthy();
+		expect(
+			screen.getByRole('gridcell', { name: 'String 5 (A), fret 5: D, scale note' }),
+		).toBeTruthy();
 		expect(screen.getByRole('gridcell', { name: 'String 6 (E), fret 6: A♯' })).toBeTruthy();
 	});
 
@@ -38,23 +67,41 @@ describe('Fretboard', () => {
 		const scale = container.querySelectorAll('.fretboard-marker--scale');
 		expect([...scale].every((el) => el.tagName === 'circle')).toBe(true);
 		// Every chord tone (A, C, E) in frets 5–8 gets a ring: 3 roots + 3 C + 3 E... count from the engine.
-		const chordCount = markPositions(guitar, { chordTones: [9, 0, 4] }, { min: 5, max: 8 }).filter((p) => p.isChordTone).length;
+		const chordCount = markPositions(
+			guitar,
+			{ chordTones: A_MINOR_CHORD },
+			{ min: 5, max: 8 },
+		).filter((p) => p.isChordTone).length;
 		expect(container.querySelectorAll('.fretboard-ring')).toHaveLength(chordCount);
 	});
 
 	it('hides labels for unmarked notes unless showAllNotes', () => {
 		const { container, rerender } = renderBoard(guitar);
 		expect(container.querySelectorAll('.fretboard-label--plain')).toHaveLength(0);
-		const positions = markPositions(guitar, { root: 9, scale: A_MINOR_PENTATONIC }, { min: 5, max: 8 });
-		rerender(<Fretboard instrument={guitar} positions={positions} noteName={noteName} label="x" showAllNotes />);
+		const positions = markPositions(
+			guitar,
+			{ root: 9, scale: A_MINOR_PENTATONIC },
+			{ min: 5, max: 8 },
+		);
+		rerender(
+			<Fretboard
+				instrument={guitar}
+				positions={positions}
+				noteName={noteName}
+				label="x"
+				showAllNotes
+			/>,
+		);
 		expect(container.querySelectorAll('.fretboard-label--plain').length).toBeGreaterThan(0);
 	});
 
 	it('uses one tab stop, starting on the first root', () => {
 		renderBoard(guitar);
-		const tabbable = screen.getAllByRole('gridcell').filter((el) => el.getAttribute('tabindex') === '0');
+		const tabbable = screen
+			.getAllByRole('gridcell')
+			.filter((el) => el.getAttribute('tabindex') === '0');
 		expect(tabbable).toHaveLength(1);
-		expect(tabbable[0]!.getAttribute('aria-label')).toMatch(/^String 1 \(E\), fret 5: A, root/);
+		expect(tabbable[0]?.getAttribute('aria-label')).toMatch(/^String 1 \(E\), fret 5: A, root/);
 	});
 
 	it('moves focus with arrow keys, Home and End', () => {
@@ -62,19 +109,33 @@ describe('Fretboard', () => {
 		const start = screen.getByRole('gridcell', { name: /^String 1 \(E\), fret 5/ });
 		start.focus();
 		fireEvent.keyDown(start, { key: 'ArrowRight' });
-		expect(document.activeElement?.getAttribute('aria-label')).toMatch(/^String 1 \(E\), fret 6/);
-		fireEvent.keyDown(document.activeElement!, { key: 'ArrowDown' });
-		expect(document.activeElement?.getAttribute('aria-label')).toMatch(/^String 2 \(B\), fret 6/);
-		fireEvent.keyDown(document.activeElement!, { key: 'End' });
-		expect(document.activeElement?.getAttribute('aria-label')).toMatch(/^String 2 \(B\), fret 8/);
-		fireEvent.keyDown(document.activeElement!, { key: 'ArrowRight' }); // edge: stays put
-		expect(document.activeElement?.getAttribute('aria-label')).toMatch(/^String 2 \(B\), fret 8/);
-		fireEvent.keyDown(document.activeElement!, { key: 'Home' });
-		expect(document.activeElement?.getAttribute('aria-label')).toMatch(/^String 2 \(B\), fret 5/);
-		fireEvent.keyDown(document.activeElement!, { key: 'ArrowUp' });
-		fireEvent.keyDown(document.activeElement!, { key: 'ArrowUp' }); // edge: stays on string 1
-		expect(document.activeElement?.getAttribute('aria-label')).toMatch(/^String 1 \(E\), fret 5/);
-		const tabbable = screen.getAllByRole('gridcell').filter((el) => el.getAttribute('tabindex') === '0');
+		expect(document.activeElement?.getAttribute('aria-label')).toMatch(
+			/^String 1 \(E\), fret 6/,
+		);
+		fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowDown' });
+		expect(document.activeElement?.getAttribute('aria-label')).toMatch(
+			/^String 2 \(B\), fret 6/,
+		);
+		fireEvent.keyDown(document.activeElement ?? document.body, { key: 'End' });
+		expect(document.activeElement?.getAttribute('aria-label')).toMatch(
+			/^String 2 \(B\), fret 8/,
+		);
+		fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowRight' }); // edge: stays put
+		expect(document.activeElement?.getAttribute('aria-label')).toMatch(
+			/^String 2 \(B\), fret 8/,
+		);
+		fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Home' });
+		expect(document.activeElement?.getAttribute('aria-label')).toMatch(
+			/^String 2 \(B\), fret 5/,
+		);
+		fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowUp' });
+		fireEvent.keyDown(document.activeElement ?? document.body, { key: 'ArrowUp' }); // edge: stays on string 1
+		expect(document.activeElement?.getAttribute('aria-label')).toMatch(
+			/^String 1 \(E\), fret 5/,
+		);
+		const tabbable = screen
+			.getAllByRole('gridcell')
+			.filter((el) => el.getAttribute('tabindex') === '0');
 		expect(tabbable).toHaveLength(1);
 	});
 
@@ -95,27 +156,46 @@ describe('Fretboard', () => {
 		fireEvent.keyDown(cell, { key: ' ' });
 		fireEvent.click(cell);
 		expect(onSelect).toHaveBeenCalledTimes(3);
-		expect(onSelect.mock.calls[0]![0]).toMatchObject({ string: 4, fret: 7, midi: 57, isRoot: true });
+		expect(onSelect.mock.calls[0]?.[0]).toMatchObject({
+			string: 4,
+			fret: 7,
+			midi: 57,
+			isRoot: true,
+		});
 	});
 
 	it('marks the selected cell with aria-selected', () => {
 		renderBoard(guitar, undefined, { onSelect: () => {}, selected: { string: 3, fret: 7 } });
-		expect(screen.getByRole('gridcell', { name: /^String 3 \(G\), fret 7/ }).getAttribute('aria-selected')).toBe('true');
-		expect(screen.getByRole('gridcell', { name: /^String 3 \(G\), fret 5/ }).getAttribute('aria-selected')).toBe('false');
+		expect(
+			screen
+				.getByRole('gridcell', { name: /^String 3 \(G\), fret 7/ })
+				.getAttribute('aria-selected'),
+		).toBe('true');
+		expect(
+			screen
+				.getByRole('gridcell', { name: /^String 3 \(G\), fret 5/ })
+				.getAttribute('aria-selected'),
+		).toBe('false');
 	});
 
 	it('with a capo, labels the capo column and omits frets behind it', () => {
 		const capo2 = createInstrumentOrThrow({ capo: 2 });
 		const { container } = renderBoard(capo2, { min: 0, max: 5 });
 		expect(screen.queryByRole('gridcell', { name: /fret 1:/ })).toBeNull();
-		expect(screen.getByRole('gridcell', { name: 'String 6 (E), fret 2, capo: F♯' })).toBeTruthy();
+		expect(
+			screen.getByRole('gridcell', { name: 'String 6 (E), fret 2, capo: F♯' }),
+		).toBeTruthy();
 		expect(container.querySelector('.fretboard-capo')).toBeTruthy();
 		expect(container.querySelector('.fretboard-nut')).toBeNull();
 	});
 
 	it('calls the open column "open" with no capo and draws a nut', () => {
 		const { container } = renderBoard(guitar, { min: 0, max: 3 });
-		expect(screen.getByRole('gridcell', { name: 'String 5 (A), open: A, root, chord tone, scale note' })).toBeTruthy();
+		expect(
+			screen.getByRole('gridcell', {
+				name: 'String 5 (A), open: A, root, chord tone, scale note',
+			}),
+		).toBeTruthy();
 		expect(container.querySelector('.fretboard-nut')).toBeTruthy();
 	});
 

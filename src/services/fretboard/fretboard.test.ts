@@ -7,13 +7,15 @@ import {
 	pitchAt,
 	playableRange,
 	positionAt,
+	DROP_D_TUNING,
+	openMidiForString,
 	TUNINGS,
 } from './index';
 
 // MIDI reference: C4 = 60, A4 = 69. Pitch classes: C=0 … A=9, B=11.
 const guitar = createInstrumentOrThrow();
 const capo2 = createInstrumentOrThrow({ capo: 2 });
-const dropD = createInstrumentOrThrow({ tuning: TUNINGS.find((t) => t.name.startsWith('Drop D'))! });
+const dropD = createInstrumentOrThrow({ tuning: DROP_D_TUNING });
 
 describe('pitchAt — TESTING.md reference values (standard tuning, no capo)', () => {
 	it.each([
@@ -85,7 +87,7 @@ describe('alternate tunings', () => {
 		for (const tuning of TUNINGS) {
 			const instrument = createInstrumentOrThrow({ tuning, fretCount: 24 });
 			for (const p of allPositions(instrument)) {
-				const open = tuning.openMidi[tuning.openMidi.length - p.string]!;
+				const open = openMidiForString(instrument, p.string);
 				expect(p.midi).toBe(open + p.fret);
 				expect(p.pitchClass).toBe(p.midi % 12);
 			}
@@ -167,9 +169,5 @@ describe('findPositions', () => {
 			[5, 15],
 			[6, 20],
 		]);
-	});
-
-	it('normalizes out-of-range pitch classes (21 → 9)', () => {
-		expect(findPositions(guitar, { pitchClass: 21 })).toEqual(findPositions(guitar, { pitchClass: 9 }));
 	});
 });

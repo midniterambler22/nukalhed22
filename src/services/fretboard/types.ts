@@ -1,4 +1,4 @@
-import type { PitchClass } from './pitch';
+import type { MidiNote, PitchClass } from '../music-theory';
 
 /**
  * A tuning lists open-string pitches as MIDI numbers, LOW to HIGH
@@ -6,7 +6,7 @@ import type { PitchClass } from './pitch';
  */
 export interface Tuning {
 	name: string;
-	openMidi: readonly number[];
+	openMidi: readonly MidiNote[];
 }
 
 export type Handedness = 'right' | 'left';
@@ -32,7 +32,7 @@ export interface Instrument {
 export interface FretPosition {
 	string: number;
 	fret: number;
-	midi: number;
+	midi: MidiNote;
 	pitchClass: PitchClass;
 }
 
@@ -55,5 +55,4 @@ export interface InstrumentError {
 }
 
 export type InstrumentResult =
-	| { ok: true; instrument: Instrument }
-	| { ok: false; errors: InstrumentError[] };
+	{ ok: true; instrument: Instrument } | { ok: false; errors: InstrumentError[] };

@@ -12,6 +12,9 @@ export interface FretboardLayout {
 	stringY(string: number): number;
 	cellWidth: number;
 	stringGap: number;
+	/** Left and right ends of the drawn neck. */
+	startX: number;
+	endX: number;
 	/** Columns from left to right as drawn. */
 	columns: number[];
 	/** True when the first column is the open/capo column (nut drawn beside it). */
@@ -47,11 +50,14 @@ export function computeLayout(
 		return index;
 	};
 	const cellX = (fret: number) => PADDING_X + indexOf(fret) * CELL_WIDTH + CELL_WIDTH / 2;
-	const wireX = (fret: number) => cellX(fret) + (handedness === 'left' ? -1 : 1) * (CELL_WIDTH / 2);
+	const wireX = (fret: number) =>
+		cellX(fret) + (handedness === 'left' ? -1 : 1) * (CELL_WIDTH / 2);
 
 	return {
 		width,
 		height,
+		startX: PADDING_X,
+		endX: width - PADDING_X,
 		cellX,
 		wireX,
 		stringY: (string) => PADDING_TOP + (string - 1) * STRING_GAP,

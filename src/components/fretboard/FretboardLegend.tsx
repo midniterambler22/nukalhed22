@@ -10,13 +10,25 @@ export function FretboardLegend({ showChordTones = true }: FretboardLegendProps)
 		<ul className="fretboard-legend" aria-label="Fretboard legend">
 			<li>
 				<svg width="22" height="22" aria-hidden="true">
-					<rect className="fretboard-marker fretboard-marker--root" x="3" y="3" width="16" height="16" rx="3" />
+					<rect
+						className="fretboard-marker fretboard-marker--root"
+						x="3"
+						y="3"
+						width="16"
+						height="16"
+						rx="3"
+					/>
 				</svg>
 				Square: root
 			</li>
 			<li>
 				<svg width="22" height="22" aria-hidden="true">
-					<circle className="fretboard-marker fretboard-marker--scale" cx="11" cy="11" r="8" />
+					<circle
+						className="fretboard-marker fretboard-marker--scale"
+						cx="11"
+						cy="11"
+						r="8"
+					/>
 				</svg>
 				Circle: scale note
 			</li>
@@ -24,7 +36,12 @@ export function FretboardLegend({ showChordTones = true }: FretboardLegendProps)
 				<li>
 					<svg width="26" height="26" aria-hidden="true">
 						<circle className="fretboard-ring" cx="13" cy="13" r="11" />
-						<circle className="fretboard-marker fretboard-marker--chord" cx="13" cy="13" r="7" />
+						<circle
+							className="fretboard-marker fretboard-marker--chord"
+							cx="13"
+							cy="13"
+							r="7"
+						/>
 					</svg>
 					Outer ring: chord tone
 				</li>
