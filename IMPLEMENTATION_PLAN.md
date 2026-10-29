@@ -2,7 +2,7 @@
 
 Tracks milestones, tasks, dependencies, and progress. Update this file as work completes.
 
-**Status (2026-10-29):** Phase 1 is done except Playwright/axe-core in the repo. Phase 2 has started: the SVG fretboard shows any key, scale and chord with keyboard navigation, and pentatonic scales can be shown as any mix of the five shapes (just 1, 1–2, 1–2–3, all 5, or a custom set).
+**Status (2026-10-29):** Phase 1 is done except Playwright/axe-core in the repo. Phase 2 has started: the SVG fretboard shows any key, scale and chord with keyboard navigation, and pentatonic scales can be shown as any mix of the five shapes (just 1, 1–2, 1–2–3, all 5, or a custom set). Phase 3 is done: a local song can be chosen or dropped, played, paused, seeked and decoded in the browser for analysis.
 
 **Build order:** This plan follows SOP §21. Mark decided on 2026-10-29 that automated key, tempo and chord analysis comes before the chord timeline and practice features (instead of the manual-chords-first order in PROJECT_INSTRUCTIONS §15). Manual chord editing still exists, as the correction layer on top of analysis results.
 
@@ -56,10 +56,12 @@ Goal: a user can pick a key and scale and see accurate, connected positions. (SO
 
 Goal: load and play a local song reliably. (SOP §7, SOP §21 step 5)
 
-- [ ] Local file selection and drag-and-drop; format validation; documented size limit
-- [ ] Play, pause, seek, volume; current time and duration
-- [ ] Clear loading and error states; release object URLs
-- [ ] Decode audio for analysis in the browser (no upload anywhere)
+- [x] Local file selection and drag-and-drop; format validation; documented size limit (200 MB; MP3, WAV, M4A, AAC, FLAC where the browser plays them)
+- [x] Play, pause, seek, ±5 s, volume and mute; current time and duration
+- [x] Waveform overview with playhead (click to seek)
+- [x] Clear loading and error states; release object URLs
+- [x] Decode audio for analysis in the browser (no upload anywhere): mono, 44.1 kHz, songs up to 20 minutes
+- [ ] Check playback in Safari and Firefox (only Chromium checked so far)
 
 **Done when:** a user loads an MP3 or WAV and can play, pause and seek it, and unsupported or broken files get a clear message.
 

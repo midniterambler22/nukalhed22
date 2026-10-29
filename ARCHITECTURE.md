@@ -2,7 +2,7 @@
 
 Documents the technical architecture, module boundaries, and recorded decisions. The full requirements are in PROJECT_INSTRUCTIONS §3–§8. This file records how they're realized and why.
 
-**Status (2026-10-29):** App scaffolded. The music theory module, fretboard engine (instrument model, positions) and SVG fretboard component are implemented; other modules are planned.
+**Status (2026-10-29):** App scaffolded. The music theory module, fretboard engine (instrument model, positions), SVG fretboard component, audio service, audio file validation and song player are implemented; other modules are planned.
 
 ## Platform
 
@@ -60,6 +60,16 @@ A browser-based app built with React + TypeScript + Vite. Audio is processed loc
 - The board is an ARIA `grid` (rows = strings, gridcells = frets) with one tab stop. Arrow keys move along the drawn neck (mirrored for left-handed), Home/End jump to the ends of a string, Enter/Space/click select. Each cell's accessible name reads like "String 6 (E), fret 5: A, root, chord tone, scale note".
 - `FretboardExplorer` is the workspace control: key, scale, chord symbol, tuning, capo, handedness and "show all notes", with a live readout of the selected note's exact pitch (e.g. "D4"). For pentatonic scales it adds a shape picker (presets Just 1 / 1–2 / 1–3 / 1–4 / All 5 plus a checkbox per shape). The chosen shapes go to `markPositions`, which keeps roles only on notes inside them and records `shapeNumbers` per note, and to `Fretboard`, which labels each shape's fret span above the neck.
 
+## Audio service and song player
+
+`src/services/audio` and `src/services/validation` are plain TypeScript with no React; `src/hooks/useLocalSong.ts` wires them to one `<audio>` element, and `src/components/player` draws the controls.
+
+- **Single clock.** `createPlaybackController(media)` mirrors the element's events into a `PlaybackState` (status `empty` / `loading` / `ready` / `error`, playing, currentTime, duration, volume, muted, error) for `useSyncExternalStore`. It never runs its own timer. `getCurrentTime()` reads the element directly; anything that tracks the music (the timeline and fretboard later) should call it. `usePlaybackTime` reads it every animation frame while playing and at once on any change, so a seek shows immediately.
+- **Files.** `validateAudioFile(file, canPlayType)` checks size (1 byte to 200 MB), format (extension first, MIME type as fallback) and whether this browser can play it, and returns a readable error instead of throwing. Playback uses an object URL for the file, revoked when another song opens or the workspace unmounts. A refused file leaves the current song loaded.
+- **Decoding for analysis.** After the element reports the duration, `decodeForAnalysis` decodes the file with an `OfflineAudioContext` at 44.1 kHz and averages the channels into one `Float32Array` (`DecodedAudio`). Songs over 20 minutes are played but not decoded, to keep memory bounded (20 minutes is about 212 MB of samples). A decode failure doesn't stop playback. A decode that finishes after another song was opened is dropped.
+- `App` owns `useLocalSong()` so later phases (analysis, timeline, guidance) share the same song and clock. Phase 4 reads `analysisAudio` when its status is `ready`.
+- Waveform: `computePeaks` + `normalizePeaks` give 240 bars. The SVG is pointer-only and hidden from assistive technology; the Position slider (with spoken `aria-valuetext`) is the accessible way to seek. Played bars are solid and unplayed bars faint, with a playhead line, so progress isn't shown by color alone.
+
 ## Core data types (planned)
 
 - `PitchClass` (0–11), `Note` (pitch class + octave + spelling)
@@ -83,4 +93,6 @@ Timestamps are in seconds (floating point) everywhere.
 | 2026-10-29 | Instrument validation returns errors instead of throwing | Tunings can come from saved sessions or user input (PROJECT_INSTRUCTIONS §9) |
 | 2026-10-29 | Fretboard as an SVG ARIA grid with a roving tab stop | One tab stop for 130+ cells; arrow keys match how players move on the neck; WCAG 2.2 AA |
 | 2026-10-29 | Build order follows SOP §21: analysis before the chord timeline | Mark's decision; manual chord editing becomes the correction layer on top of analysis results |
+| 2026-10-29 | Native `<audio>` element + Web Audio decode; no Tone.js or wavesurfer.js yet | The element gives play, pause, seek, volume and an accurate clock for every format the browser supports; `OfflineAudioContext` gives samples for analysis. A ~40-line SVG waveform covers the overview. Revisit Tone.js for speed change without pitch shift (Phase 6) and wavesurfer.js if we need zoom or regions |
+| 2026-10-29 | 200 MB file limit; analysis decode limited to 20 minutes, mono 44.1 kHz | Keeps the in-browser decode within memory on ordinary laptops and phones; 44.1 kHz is what Essentia.js expects |
 | — | Analysis engine | To decide in Phase 4 after testing against known audio |
