@@ -4,6 +4,8 @@ Tracks milestones, tasks, dependencies, and progress. Update this file as work c
 
 **Status (2026-10-29):** Phase 1 is done except Playwright/axe-core in the repo. Phase 2 has started: the SVG fretboard shows any key, scale and chord with keyboard navigation, and pentatonic scales can be shown as any mix of the five shapes (just 1, 1–2, 1–2–3, all 5, or a custom set). Phase 3 is done: a local song can be chosen or dropped, played, paused, seeked and decoded in the browser for analysis. Phase 4 is done for synthetic reference songs: key, tempo, beats and chords are estimated on the device with confidence; accuracy on real recordings hasn't been measured yet.
 
+**UI spec (2026-10-29):** Mark's [UI_SPEC.md](UI_SPEC.md) Phase 1 (UI foundation) is done: studio design tokens, header, responsive multi-panel workspace, waveform and chord timeline, and the Scale Viewer tab. The spec's phase list differs from this plan (it has 20 scales, YouTube in its Phase 4, Build My Solo in Phase 6); this plan hasn't been reordered until Mark decides.
+
 **Build order:** This plan follows SOP §21. Mark decided on 2026-10-29 that automated key, tempo and chord analysis comes before the chord timeline and practice features (instead of the manual-chords-first order in PROJECT_INSTRUCTIONS §15). Manual chord editing still exists, as the correction layer on top of analysis results.
 
 Legend: `[x]` done · `[ ]` not started · `[~]` in progress
@@ -31,6 +33,7 @@ Goal: a working, testable app shell with a correct theory and fretboard engine. 
 - [x] Fretboard engine: string + fret → pitch; note → all positions
 - [x] Unit tests against the reference values in TESTING.md
 - [x] Main workspace layout shell (placeholder regions clearly marked unavailable)
+- [x] Studio workspace from UI_SPEC Phase 1: tokens, header, tabs, multi-panel responsive layout, sticky playback bar, Help and Settings
 - [x] Record the decision on using Tonal.js vs. our own module in ARCHITECTURE.md
 
 **Done when:** the app builds and starts, type check and lint pass, and theory and fretboard unit tests pass.
@@ -43,9 +46,9 @@ Goal: a user can pick a key and scale and see accurate, connected positions. (SO
 - [x] Note selection and root-note highlighting
 - [x] Scale-note and chord-tone highlighting, distinguished by shape/label, not color alone
 - [x] Five connected minor-pentatonic positions (fret ranges, roots, exact string/fret pairs), shown one at a time or in any combination
-- [~] Shared notes between adjacent positions; next/previous navigation (shared notes are named "shapes 1 and 2" on the board; next/previous controls not yet)
-- [~] Low / Middle / High register selection that picks valid positions (engine in `positions.ts`; UI not yet)
-- [ ] Configurable fret range that doesn't change the underlying calculations
+- [x] Shared notes between adjacent positions; next/previous navigation (shared notes are named "boxes 1 and 2"; previous/next box buttons)
+- [x] Low / Middle / High register selection that picks valid positions
+- [x] Configurable neck length (12, 15, 22, 24 frets) that doesn't change the underlying calculations
 - [x] Keyboard navigation and visible focus on the fretboard
 - [ ] Optional fingering and interval labels
 - [x] Left-handed display
@@ -85,8 +88,8 @@ Goal: estimate key, tempo, and chords from audio, with honest confidence. (SOP �
 
 Goal: a synchronized, correctable chord timeline. (SOP §9, SOP §21 step 7)
 
-- [ ] Chord timeline display; current and upcoming chord
-- [ ] Active chord driven by the audio element's playback time; correct after seeking
+- [x] Chord timeline display; current and upcoming chord
+- [x] Active chord driven by the audio element's playback time; correct after seeking
 - [ ] Edit chord labels and timings; add and remove chords
 - [ ] Corrections stored separately from automatic results
 - [ ] Manual entry for songs where analysis fails

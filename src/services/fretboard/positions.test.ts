@@ -6,6 +6,8 @@ import {
 	getPreviousPosition,
 	getScalePositions,
 	getSharedNotes,
+	positionsInRegister,
+	registerOf,
 	registerRange,
 	REGISTERS,
 	selectRegister,
@@ -340,5 +342,50 @@ describe('register selection', () => {
 
 	it('returns nothing when there are no positions', () => {
 		expect(selectRegister(guitar, [], 'middle')).toEqual([]);
+	});
+
+	it('positionsInRegister keeps the positions inside a third, in neck order', () => {
+		const shown = (register: (typeof REGISTERS)[number]) =>
+			positionsInRegister(guitar, aMinor, register).map((p) => [p.number, p.startFret]);
+		expect(shown('low')).toEqual([
+			[4, 0],
+			[5, 3],
+			[1, 5],
+		]);
+		expect(shown('middle')).toEqual([
+			[2, 8],
+			[3, 10],
+			[4, 12],
+		]);
+		expect(shown('high')).toEqual([
+			[5, 15],
+			[1, 17],
+			[2, 20],
+		]);
+	});
+
+	it('positionsInRegister falls back to just the nearest position, never the whole neck', () => {
+		const capo = createInstrumentOrThrow({ capo: 10 });
+		const positions = getScalePositions(capo, A, MINOR_PENTATONIC);
+		for (const register of REGISTERS) {
+			const shown = positionsInRegister(capo, positions, register);
+			expect(shown.length).toBeGreaterThan(0);
+			expect(shown.length).toBeLessThan(positions.length);
+		}
+		expect(positionsInRegister(guitar, [], 'low')).toEqual([]);
+	});
+
+	it('registerOf names the third each position sits in', () => {
+		expect(aMinor.map((p) => [p.number, p.startFret, registerOf(guitar, p)])).toEqual([
+			[4, 0, 'low'],
+			[5, 3, 'low'],
+			[1, 5, 'low'],
+			[2, 8, 'middle'],
+			[3, 10, 'middle'],
+			[4, 12, 'middle'],
+			[5, 15, 'high'],
+			[1, 17, 'high'],
+			[2, 20, 'high'],
+		]);
 	});
 });

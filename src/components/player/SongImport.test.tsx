@@ -3,11 +3,20 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import { useLocalSong, type LocalSongOptions } from '../../hooks/useLocalSong';
 import { AudioDecodeError, type DecodedAudio } from '../../services/audio';
-import { SongPlayer } from './SongPlayer';
+import { PlaybackControls } from './PlaybackControls';
+import { SongImport } from './SongImport';
+
+const demoFile = () =>
+	new File(['demo'], 'Demo - 12-bar blues in A (synthesized).wav', { type: 'audio/wav' });
 
 function Harness(options: LocalSongOptions) {
 	const song = useLocalSong(options);
-	return <SongPlayer song={song} />;
+	return (
+		<>
+			<SongImport song={song} createDemo={demoFile} />
+			<PlaybackControls song={song} />
+		</>
+	);
 }
 
 const decoded: DecodedAudio = {
@@ -81,13 +90,16 @@ async function loadMetadata(duration = 180) {
 
 const playsEverything = () => 'maybe';
 
-describe('SongPlayer', () => {
+describe('SongImport and PlaybackControls', () => {
 	it('says the song stays on this device and lists supported formats and the size limit', () => {
 		render(<Harness canPlayType={playsEverything} decode={async () => decoded} />);
 		expect(screen.getByText(/stays on this device.*never uploaded/)).toBeTruthy();
-		expect(screen.getByText('MP3, WAV, M4A, AAC or FLAC, up to 200 MB.')).toBeTruthy();
+		expect(screen.getByText(/^MP3, WAV, M4A, AAC or FLAC, up to 200 MB\./)).toBeTruthy();
 		expect(screen.getByRole('button', { name: 'Choose a song' })).toBeTruthy();
-		expect(screen.queryByRole('button', { name: 'Play' })).toBeNull();
+		expect(screen.getAllByText('No song loaded')).toHaveLength(2);
+		expect((screen.getByRole('button', { name: 'Play' }) as HTMLButtonElement).disabled).toBe(
+			true,
+		);
 	});
 
 	it('refuses an unsupported file with a clear message', () => {
@@ -154,7 +166,9 @@ describe('SongPlayer', () => {
 
 	it('opens a dropped file', async () => {
 		render(<Harness canPlayType={playsEverything} decode={async () => decoded} />);
-		const zone = screen.getByText('or drop an audio file here').parentElement as HTMLElement;
+		const zone = screen
+			.getByRole('button', { name: 'Choose a song' })
+			.closest('.player') as HTMLElement;
 		fireEvent.drop(zone, { dataTransfer: { files: [mp3()], types: ['Files'] } });
 		expect(screen.getByText('Little Wing.mp3')).toBeTruthy();
 	});
@@ -235,5 +249,17 @@ describe('SongPlayer', () => {
 		chooseFile(new File(['x'], 'Voodoo Child.wav', { type: 'audio/wav' }));
 		await act(async () => finishFirst(decoded));
 		expect(screen.queryByText(/^Ready for analysis/)).toBeNull();
+	});
+
+	it('opens the demo song through the same path as a chosen file, and labels it', async () => {
+		vi.useFakeTimers();
+		render(<Harness canPlayType={playsEverything} decode={async () => decoded} />);
+		fireEvent.click(screen.getByRole('button', { name: 'Try the demo song' }));
+		expect(screen.getByRole('button', { name: 'Making the demo…' })).toBeTruthy();
+		await act(async () => vi.advanceTimersByTime(50));
+		vi.useRealTimers();
+		expect(screen.getByText('Demo: 12-bar blues in A')).toBeTruthy();
+		expect(screen.getByText(/Synthesized in this browser/)).toBeTruthy();
+		expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
 	});
 });

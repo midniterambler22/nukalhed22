@@ -252,15 +252,15 @@ describe('Fretboard shapes', () => {
 		const labels = [...container.querySelectorAll('.fretboard-shape-label')].map(
 			(el) => el.textContent,
 		);
-		expect(labels).toEqual(['Shape 1', 'Shape 2', 'Shape 1', 'Shape 2']);
+		expect(labels).toEqual(['Box 1', 'Box 2', 'Box 1', 'Box 2']);
 		expect(
 			screen.getByRole('gridcell', {
-				name: 'String 6 (E), fret 8: C, scale note, shapes 1 and 2',
+				name: 'String 6 (E), fret 8: C, scale note, boxes 1 and 2',
 			}),
 		).toBeTruthy();
 		expect(
 			screen.getByRole('gridcell', {
-				name: 'String 6 (E), fret 5: A, root, scale note, shape 1',
+				name: 'String 6 (E), fret 5: A, root, scale note, box 1',
 			}),
 		).toBeTruthy();
 	});
@@ -269,9 +269,9 @@ describe('Fretboard shapes', () => {
 describe('shapeWords', () => {
 	it.each([
 		[[], ''],
-		[[3], 'shape 3'],
-		[[1, 2], 'shapes 1 and 2'],
-		[[1, 2, 3], 'shapes 1, 2 and 3'],
+		[[3], 'box 3'],
+		[[1, 2], 'boxes 1 and 2'],
+		[[1, 2, 3], 'boxes 1, 2 and 3'],
 	])('%j → %s', (numbers, words) => {
 		expect(shapeWords(numbers)).toBe(words);
 	});
@@ -280,9 +280,9 @@ describe('shapeWords', () => {
 describe('FretboardLegend', () => {
 	it('names each role in words', () => {
 		render(<FretboardLegend showOutsideChordTones />);
-		expect(screen.getByText('Square: root')).toBeTruthy();
-		expect(screen.getByText('Circle: scale note')).toBeTruthy();
-		expect(screen.getByText('Outer ring: chord tone')).toBeTruthy();
-		expect(screen.getByText('Hollow ring: chord tone outside the scale')).toBeTruthy();
+		expect(screen.getByText('Red square: root')).toBeTruthy();
+		expect(screen.getByText('Orange circle: scale note')).toBeTruthy();
+		expect(screen.getByText('Blue ring: chord tone')).toBeTruthy();
+		expect(screen.getByText('Hollow blue ring: chord tone outside the scale')).toBeTruthy();
 	});
 });

@@ -97,7 +97,7 @@ Register selection on a 22-fret neck with no capo splits the frets into thirds (
 
 ## Analysis verification (2026-10-29)
 
-Reference songs are rendered by `src/tests/synth.ts` from a score (strummed chords with harmonics, bass, kick on 1 and 3, snare on 2 and 4, eighth-note hi-hat), so the right answers are exact. These prove the maths and catch regressions. **They are not a measure of accuracy on real recordings, which hasn't been measured yet.**
+Reference songs are rendered by `src/services/demo/synth.ts` from a score (strummed chords with harmonics, bass, kick on 1 and 3, snare on 2 and 4, eighth-note hi-hat), so the right answers are exact. These prove the maths and catch regressions. **They are not a measure of accuracy on real recordings, which hasn't been measured yet.**
 
 | Reference song (SOP §8 case) | Key | Tempo | Beats within 50 ms | Chord time correct |
 |---|---|---|---|---|
@@ -120,6 +120,14 @@ Component tests (`analysis.test.tsx`): idle and decoding text; progress status a
 Manual in Chromium (production build, 390 px wide, light and dark): a 58 s 12-bar blues WAV decodes and analyzes in the worker in about 1.3 s (A major, 100 BPM, A7/D7/E7 at the right bar lines); tapping a chord seeks playback; axe-core reports no violations; no horizontal scroll; no console errors. The single-file preview build falls back to on-page analysis if its worker can't load.
 
 Not yet tested: real recordings, Safari and Firefox, songs near the 20-minute limit (expect about 25 s of analysis for 20 minutes in Chromium), tunings other than A = 440 Hz.
+
+## Studio workspace verification (2026-10-29)
+
+Unit and component tests: progression timing (current chord at boundaries and gaps, next and previous change, time markers); `romanNumeral` (12-bar blues = I, IV, V; case and ° in C major; borrowed ♭VI, ♭VII); `chordTonesInScale` (A7 over A minor pentatonic: C♯ outside; E7: E and D inside); `positionsInRegister` and `registerOf` for A minor pentatonic; WAV encoding and the demo song's length. `ScaleViewer.test.tsx`: formula, notes and positions; box labels with registers; key spelling; invalid chord; capo; 12-fret neck; Low / Middle / High show exactly the boxes in that third; box toggles, none, all, previous/next; roots and chord-tone layers; seven-note scales in a register; chord-tone focus text. `App.test.tsx`: empty states, tab keyboard navigation keeping Scale Viewer state, planned tabs, Settings changes the tuning, Help. Player tests now cover the import panel and the playback bar together, plus the demo song.
+
+Manual in Chromium (dev server) at 1440, 900 and 390 px: the demo song loads, analyzes (A major, 100 BPM, A7/D7/E7) and plays; the timeline and chord list follow playback; no console errors; axe-core (WCAG 2.2 AA and best practice) reports no violations on Scale Viewer, Song Info and a planned tab at desktop and phone widths.
+
+Not yet tested: Safari, Firefox, a real phone (the preview is for that), screen readers.
 
 ## Known failures
 

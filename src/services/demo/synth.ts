@@ -1,9 +1,9 @@
-import { chordPitchClasses } from '../services/music-theory';
+import { chordPitchClasses } from '../music-theory';
 
 /**
- * Renders test songs with known content: chords, tempo and key are exactly what the
- * score says, so analysis results can be checked against ground truth. Used by tests
- * only. Deterministic: the same options always give the same samples.
+ * Renders songs with known content: chords, tempo and key are exactly what the score
+ * says, so analysis results can be checked against ground truth. Tests use it, and so
+ * does the in-app demo song. Deterministic: the same options always give the same samples.
  */
 
 export interface SynthOptions {

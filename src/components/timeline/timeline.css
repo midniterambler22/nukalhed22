@@ -1,0 +1,145 @@
+.timeline {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: var(--space-2);
+	align-items: start;
+	min-width: 0;
+}
+
+.timeline-scroll {
+	overflow-x: auto;
+	min-width: 0;
+	padding-bottom: var(--space-1);
+}
+
+.timeline-inner {
+	display: grid;
+	gap: 3px;
+	min-width: 100%;
+}
+
+.timeline-waveform-empty {
+	height: 4.5rem;
+	border-radius: var(--radius-sm);
+	background: repeating-linear-gradient(
+		90deg,
+		var(--color-surface-raised) 0 3px,
+		transparent 3px 6px
+	);
+}
+
+.timeline-chords {
+	position: relative;
+	height: 2rem;
+}
+
+.timeline-chord {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	padding: 0 2px;
+	font-size: var(--font-size-sm);
+	font-weight: 700;
+	white-space: nowrap;
+	color: #06101c;
+	background: var(--chord-color, var(--color-muted));
+	border: 1px solid var(--color-bg);
+	border-radius: 3px;
+	cursor: pointer;
+}
+
+.timeline-chord.is-uncertain {
+	background: repeating-linear-gradient(
+		135deg,
+		var(--chord-color),
+		var(--chord-color) 6px,
+		color-mix(in srgb, var(--chord-color) 70%, black) 6px 9px
+	);
+}
+
+/* The current chord gets a thick white frame and lifts, not just a colour change. */
+.timeline-chord.is-current {
+	z-index: 1;
+	outline: 3px solid var(--color-text);
+	outline-offset: -1px;
+}
+
+.timeline-head {
+	position: absolute;
+	top: -4px;
+	bottom: -4px;
+	width: 2px;
+	margin-left: -1px;
+	background: var(--color-text);
+	pointer-events: none;
+	z-index: 2;
+}
+
+.timeline-markers {
+	position: relative;
+	height: 1.1rem;
+	font-size: var(--font-size-xs);
+	color: var(--color-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.timeline-markers span {
+	position: absolute;
+	transform: translateX(-50%);
+}
+
+.timeline-markers span:first-child {
+	transform: none;
+}
+
+.timeline-zoom {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.timeline-zoom-level {
+	font-size: var(--font-size-xs);
+	color: var(--color-muted);
+}
+
+.now-playing {
+	display: grid;
+	gap: var(--space-2);
+	align-content: start;
+}
+
+.now-playing p {
+	margin: 0;
+}
+
+.now-playing-slot {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+	align-items: baseline;
+}
+
+.now-playing-label {
+	min-width: 2.5rem;
+	font-size: var(--font-size-xs);
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--color-muted);
+}
+
+.now-playing-chord {
+	font-size: 1.75rem;
+	font-weight: 800;
+	line-height: 1.1;
+}
+
+.now-playing-chord--next {
+	font-size: var(--font-size-lg);
+	color: var(--color-muted);
+}

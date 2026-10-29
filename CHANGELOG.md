@@ -6,9 +6,18 @@ Significant changes and releases.
 
 ### Changed
 
+- Fretboard colours follow the spec legend: red roots, orange scale notes, blue chord tones. Shapes are now called boxes ("Box 1"). The fretboard explorer is replaced by the Scale Viewer.
 - Build order now follows SOP §21: audio playback, then automated analysis, then the chord timeline and practice features.
 
 ### Added
+
+- Studio workspace (UI spec Phase 1): dark navy design tokens and shared controls; a header (logo and name, no tagline) with the song's key, tempo and time signature, Help and Settings; the song, waveform and chord timeline across the top (zoom, click to seek, current chord framed, "Now / Next" chord); song analysis on the left with a detected-chord list that marks the chord playing now and shows each chord's function (I, IV, V…) once the key is likely; workspace tabs (Jam Master, Riff Builder and Chord Viewer marked Planned; Scale Viewer; Song Info); and a playback bar that stays on screen with previous/next chord. Panels stack and collapse on tablets and phones.
+- Scale Viewer: key, scale, Low / Middle / High / All register, Box 1–5 toggles with previous/next, and Roots / Chord tones / All note names layers. Each box has its own coloured outline labelled with its register ("Box 3 (Mid)"). Seven-note scales show every note within the chosen register.
+- Chord & scale info panel: the chord's tones with intervals, which are in or outside the scale, the scale's notes with intervals, and a plain-language "chord tone focus".
+- Settings dialog: tuning, capo, neck length (12, 15, 22 or 24 frets) and left-handed.
+- Demo song: a 12-bar blues in A synthesized in the browser that goes through real playback and analysis.
+- Theory and engine helpers: `romanNumeral`, `chordTonesInScale`, `positionsInRegister`, `registerOf`, and chord timing (`chordIndexAt`, `nextChangeIndex`, `previousChangeIndex`, `timeMarkers`).
+- UI_SPEC.md (Mark's spec, verbatim) and its reference image.
 
 - Automatic song analysis (`src/services/analysis`), on the device: estimated key (with alternatives and key changes), tempo and beats, and chords (major, minor, 7, m7) with times. Every estimate carries a confidence shown in words (likely, possible, uncertain). Runs in a Web Worker, falls back to the page if a worker can't start, and fails with a plain message for silence or audio under 5 seconds.
 - Key and tempo panel and chord list (`src/components/analysis`): analysis progress, results with confidence, a "Try again" button after a failure, and chord buttons that move playback to that chord.

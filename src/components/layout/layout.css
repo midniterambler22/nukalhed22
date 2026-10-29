@@ -1,0 +1,428 @@
+/* Studio shell: header, panels, grid, tabs, dialogs and the playback bar. */
+.studio {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.studio-main {
+	display: grid;
+	gap: var(--space-3);
+	flex: 1;
+	padding: var(--space-3);
+	min-width: 0;
+}
+
+/* Header */
+.app-header {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	gap: var(--space-3) var(--space-5);
+	align-items: center;
+	padding: var(--space-2) var(--space-4);
+	background: rgb(10 16 32 / 0.92);
+	border-bottom: 1px solid var(--color-border);
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	backdrop-filter: blur(6px);
+}
+
+.app-brand {
+	display: flex;
+	gap: var(--space-3);
+	align-items: center;
+}
+
+.app-name {
+	margin: 0;
+	font-size: var(--font-size-lg);
+	line-height: 1.2;
+	letter-spacing: 0.01em;
+}
+
+.app-song {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-1) var(--space-5);
+	align-items: center;
+	min-width: 0;
+	padding: var(--space-2) var(--space-4);
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
+}
+
+.app-song-title {
+	margin: 0;
+	font-weight: 700;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 22rem;
+}
+
+.app-song-facts {
+	display: flex;
+	gap: var(--space-5);
+	margin: 0;
+}
+
+.app-song-facts dt {
+	font-size: var(--font-size-xs);
+	color: var(--color-muted);
+}
+
+.app-song-facts dd {
+	margin: 0;
+	font-weight: 700;
+}
+
+.app-song-note {
+	margin: 0;
+	font-size: var(--font-size-xs);
+	color: var(--color-muted);
+}
+
+.app-actions {
+	display: flex;
+	gap: var(--space-1);
+}
+
+/* Panels */
+.panel {
+	min-width: 0;
+	padding: var(--space-3) var(--space-4);
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
+}
+
+.panel-head {
+	display: flex;
+	gap: var(--space-2);
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: var(--space-2);
+}
+
+.panel-title {
+	margin: 0;
+	font-size: var(--font-size-md);
+	font-weight: 700;
+}
+
+.panel-subtitle {
+	margin: var(--space-4) 0 var(--space-2);
+	font-size: var(--font-size-sm);
+	font-weight: 700;
+}
+
+.panel-body {
+	display: grid;
+	gap: var(--space-2);
+	min-width: 0;
+}
+
+.panel-toggle {
+	min-height: 2.25rem;
+}
+
+/* The song panel spans the top. */
+.song-strip {
+	display: grid;
+	grid-template-columns: minmax(13rem, 16rem) minmax(0, 1fr) minmax(9rem, 12rem);
+	gap: var(--space-4);
+	align-items: start;
+}
+
+/* Main grid: analysis | workspace | tools */
+.studio-grid {
+	display: grid;
+	gap: var(--space-3);
+	grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
+	grid-template-areas: 'analysis center';
+	align-items: start;
+}
+
+.studio-grid.has-tools {
+	grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr) minmax(14rem, 17rem);
+	grid-template-areas: 'analysis center tools';
+}
+
+.panel--analysis {
+	grid-area: analysis;
+}
+
+.panel--tools {
+	grid-area: tools;
+}
+
+.studio-center {
+	grid-area: center;
+	display: grid;
+	gap: var(--space-2);
+	min-width: 0;
+}
+
+.panel--workspace {
+	padding: var(--space-4);
+}
+
+/* Tabs */
+.workspace-tabs {
+	display: flex;
+	gap: var(--space-1);
+	overflow-x: auto;
+	padding: var(--space-1);
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
+}
+
+.workspace-tab {
+	display: inline-flex;
+	gap: var(--space-2);
+	align-items: center;
+	flex: 1 0 auto;
+	justify-content: center;
+	min-height: var(--touch-target);
+	padding: 0 var(--space-4);
+	font: inherit;
+	font-size: var(--font-size-sm);
+	font-weight: 600;
+	color: var(--color-muted);
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: var(--radius-md);
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.workspace-tab:hover {
+	color: var(--color-text);
+}
+
+/* Selected: text colour, fill, border and an underline bar, never colour alone. */
+.workspace-tab[aria-selected='true'] {
+	color: var(--color-text);
+	background: var(--color-accent-soft);
+	border-color: var(--color-accent);
+	box-shadow: var(--glow);
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 6px;
+}
+
+.workspace-tab-badge {
+	padding: 0 var(--space-1);
+	font-size: 0.7rem;
+	font-weight: 600;
+	color: var(--color-muted);
+	border: 1px dashed var(--color-border-strong);
+	border-radius: var(--radius-sm);
+	text-decoration: none;
+}
+
+/* Playback bar, always reachable */
+.studio-playback {
+	position: sticky;
+	bottom: 0;
+	z-index: 10;
+	padding: var(--space-2) var(--space-4);
+	background: rgb(10 16 32 / 0.96);
+	border-top: 1px solid var(--color-border);
+	backdrop-filter: blur(6px);
+}
+
+/* Dialogs */
+.dialog {
+	width: min(36rem, calc(100vw - 2rem));
+	max-height: calc(100vh - 2rem);
+	padding: 0;
+	color: var(--color-text);
+	background: var(--color-surface);
+	border: 1px solid var(--color-border-strong);
+	border-radius: var(--radius-lg);
+}
+
+.dialog::backdrop {
+	background: rgb(2 5 12 / 0.7);
+}
+
+.dialog-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-2);
+	padding: var(--space-3) var(--space-4);
+	border-bottom: 1px solid var(--color-border);
+	position: sticky;
+	top: 0;
+	background: var(--color-surface);
+}
+
+.dialog-head h2 {
+	margin: 0;
+	font-size: var(--font-size-lg);
+}
+
+.dialog-body {
+	padding: var(--space-4);
+}
+
+.settings-form {
+	display: grid;
+	gap: var(--space-3);
+}
+
+.help {
+	display: grid;
+	gap: var(--space-4);
+	font-size: var(--font-size-sm);
+}
+
+.help h3 {
+	margin: 0 0 var(--space-1);
+	font-size: var(--font-size-md);
+}
+
+.help p,
+.help ol,
+.help ul {
+	margin: 0;
+}
+
+.help ol,
+.help ul {
+	padding-left: 1.25rem;
+}
+
+.planned {
+	display: grid;
+	gap: var(--space-3);
+	justify-items: start;
+	max-width: 36rem;
+	padding: var(--space-4) 0;
+}
+
+.planned h3,
+.planned p {
+	margin: 0;
+}
+
+/* Tablet: workspace full width, side panels below it, collapsible. */
+@media (max-width: 75rem) {
+	.studio-grid,
+	.studio-grid.has-tools {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		grid-template-areas:
+			'center center'
+			'analysis tools';
+	}
+
+	.studio-grid:not(.has-tools) {
+		grid-template-areas:
+			'center center'
+			'analysis analysis';
+	}
+
+	.song-strip {
+		grid-template-columns: minmax(13rem, 16rem) minmax(0, 1fr);
+	}
+
+	.song-strip .now-playing {
+		grid-column: 1;
+		grid-row: 2;
+	}
+
+	.song-strip .timeline {
+		grid-row: 1 / span 2;
+		grid-column: 2;
+	}
+
+	.panel.is-collapsed .panel-body {
+		display: none;
+	}
+
+	.panel.is-collapsed .panel-head {
+		margin-bottom: 0;
+	}
+}
+
+@media (min-width: 75.0625rem) {
+	.panel-toggle {
+		display: none;
+	}
+}
+
+/* Phone: one column in priority order, song first, then the neck. */
+@media (max-width: 48rem) {
+	.studio-main {
+		padding: var(--space-2);
+		gap: var(--space-2);
+	}
+
+	.app-header {
+		grid-template-columns: minmax(0, 1fr) auto;
+		padding: var(--space-2) var(--space-3);
+	}
+
+	.app-song {
+		grid-column: 1 / -1;
+		grid-row: 2;
+		padding: var(--space-1) var(--space-3);
+		gap: var(--space-1) var(--space-4);
+	}
+
+	.app-song-title {
+		max-width: 100%;
+		flex: 1 1 100%;
+	}
+
+	.app-song-note {
+		display: none;
+	}
+
+	.app-action-label {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+	}
+
+	.studio-grid,
+	.studio-grid.has-tools,
+	.studio-grid:not(.has-tools) {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-areas:
+			'center'
+			'tools'
+			'analysis';
+	}
+
+	.song-strip {
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--space-3);
+	}
+
+	.song-strip .now-playing,
+	.song-strip .timeline {
+		grid-column: 1;
+		grid-row: auto;
+	}
+
+	.panel {
+		padding: var(--space-3);
+	}
+
+	.panel--workspace {
+		padding: var(--space-3) var(--space-2);
+	}
+
+	.studio-playback {
+		padding: var(--space-1) var(--space-2);
+	}
+}

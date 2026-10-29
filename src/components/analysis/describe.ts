@@ -51,3 +51,14 @@ export function chordShares(events: readonly ChordEvent[]): ChordShare[] {
 export function displayChord(symbol: string): string {
 	return symbol.replace(/^([A-G])#/, '$1♯').replace(/^([A-G])b/, '$1♭');
 }
+
+/** How many chord colours the theme defines (--chord-0 … --chord-5). */
+export const CHORD_COLOR_COUNT = 6;
+
+/**
+ * A colour slot per chord symbol, most-played chord first, so the timeline and the
+ * chord list colour each chord the same way. Colour only reinforces the written name.
+ */
+export function chordColorSlots(events: readonly ChordEvent[]): Map<string, number> {
+	return new Map(chordShares(events).map((s, i) => [s.chord, i % CHORD_COLOR_COUNT]));
+}

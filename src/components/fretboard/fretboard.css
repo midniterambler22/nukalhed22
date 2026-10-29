@@ -6,55 +6,70 @@
 	--fb-inlay: #cdbb98;
 	--fb-text: #1d1d1d;
 	--fb-muted-text: #5a5a5a;
-	--fb-root: #a3201f;
-	--fb-chord: #7a4b00;
-	--fb-scale: #1d4f8a;
+	--fb-root: #b42318;
+	--fb-chord: #1d4f8a;
+	--fb-scale: #9a4a00;
 	--fb-on-marker: #ffffff;
-	--fb-ring: #7a4b00;
+	--fb-ring: #1d4f8a;
 	--fb-focus: #0b57d0;
 	--fb-selected: #1d1d1d;
 	--fb-bg-band: #fffaf0;
 	--fb-error: #a3201f;
+	--fb-box-1: #9a4a00;
+	--fb-box-2: #1d4f8a;
+	--fb-box-3: #22703a;
+	--fb-box-4: #b42318;
+	--fb-box-5: #6a3fb5;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme='light']) {
-		--fb-wood: #2a251d;
-		--fb-wire: #9a9a9a;
-		--fb-nut: #e6e1d6;
-		--fb-string: #bdb8ad;
-		--fb-inlay: #4d4436;
-		--fb-text: #f1ede4;
-		--fb-muted-text: #c3bdb0;
-		--fb-root: #ff8a80;
-		--fb-chord: #ffc561;
-		--fb-scale: #8cbcff;
-		--fb-on-marker: #111111;
-		--fb-ring: #ffc561;
-		--fb-focus: #a8c7ff;
-		--fb-selected: #f1ede4;
-		--fb-bg-band: #3a3328;
-		--fb-error: #ff8a80;
+		--fb-wood: #1c1814;
+		--fb-wire: #8d93a3;
+		--fb-nut: #e9e4d8;
+		--fb-string: #c4c0b6;
+		--fb-inlay: #3d3a44;
+		--fb-text: #eef2fb;
+		--fb-muted-text: #b9c2d6;
+		--fb-root: #ff6b6b;
+		--fb-chord: #5cb6ff;
+		--fb-scale: #ffa94d;
+		--fb-on-marker: #0b0f18;
+		--fb-ring: #5cb6ff;
+		--fb-focus: #b3dcff;
+		--fb-selected: #eef2fb;
+		--fb-bg-band: #1d2235;
+		--fb-error: #ff8f87;
+		--fb-box-1: #ffa94d;
+		--fb-box-2: #5cb6ff;
+		--fb-box-3: #6fdc8c;
+		--fb-box-4: #ff6b6b;
+		--fb-box-5: #b79cff;
 	}
 }
 
 :root[data-theme='dark'] {
-	--fb-wood: #2a251d;
-	--fb-wire: #9a9a9a;
-	--fb-nut: #e6e1d6;
-	--fb-string: #bdb8ad;
-	--fb-inlay: #4d4436;
-	--fb-text: #f1ede4;
-	--fb-muted-text: #c3bdb0;
-	--fb-root: #ff8a80;
-	--fb-chord: #ffc561;
-	--fb-scale: #8cbcff;
-	--fb-on-marker: #111111;
-	--fb-ring: #ffc561;
-	--fb-focus: #a8c7ff;
-	--fb-selected: #f1ede4;
-	--fb-bg-band: #3a3328;
-	--fb-error: #ff8a80;
+	--fb-wood: #1c1814;
+	--fb-wire: #8d93a3;
+	--fb-nut: #e9e4d8;
+	--fb-string: #c4c0b6;
+	--fb-inlay: #3d3a44;
+	--fb-text: #eef2fb;
+	--fb-muted-text: #b9c2d6;
+	--fb-root: #ff6b6b;
+	--fb-chord: #5cb6ff;
+	--fb-scale: #ffa94d;
+	--fb-on-marker: #0b0f18;
+	--fb-ring: #5cb6ff;
+	--fb-focus: #b3dcff;
+	--fb-selected: #eef2fb;
+	--fb-bg-band: #1d2235;
+	--fb-error: #ff8f87;
+	--fb-box-1: #ffa94d;
+	--fb-box-2: #5cb6ff;
+	--fb-box-3: #6fdc8c;
+	--fb-box-4: #ff6b6b;
+	--fb-box-5: #b79cff;
 }
 
 .fretboard-scroll {
@@ -67,7 +82,7 @@
 .fretboard {
 	display: block;
 	background: var(--fb-wood);
-	font-family: system-ui, sans-serif;
+	font-family: inherit;
 }
 
 .fretboard-wire {
@@ -101,8 +116,33 @@
 
 .fretboard-shape-band {
 	fill: var(--fb-bg-band);
-	stroke: var(--fb-muted-text);
-	stroke-width: 1;
+	stroke: var(--box-color, var(--fb-muted-text));
+	stroke-width: 2;
+}
+
+/* Outline around a box on the neck; each box number has its own colour and is
+   always labelled "Box N" above the neck, so colour is never the only cue. */
+.fretboard-box-outline {
+	fill: none;
+	stroke: var(--box-color, var(--fb-muted-text));
+	stroke-width: 2;
+	opacity: 0.85;
+}
+
+.fretboard-box--1 {
+	--box-color: var(--fb-box-1);
+}
+.fretboard-box--2 {
+	--box-color: var(--fb-box-2);
+}
+.fretboard-box--3 {
+	--box-color: var(--fb-box-3);
+}
+.fretboard-box--4 {
+	--box-color: var(--fb-box-4);
+}
+.fretboard-box--5 {
+	--box-color: var(--fb-box-5);
 }
 
 .fretboard-shape-label {
@@ -192,9 +232,7 @@
 	padding: 0;
 	list-style: none;
 	color: var(--fb-text);
-	font:
-		14px system-ui,
-		sans-serif;
+	font-size: 14px;
 }
 
 .fretboard-legend li {
@@ -205,74 +243,6 @@
 
 .fretboard-cell:focus-visible {
 	outline: none;
-}
-
-.fretboard-controls {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.75rem 1rem;
-	align-items: flex-end;
-	margin-bottom: 0.75rem;
-}
-
-.fretboard-controls label {
-	display: flex;
-	flex-direction: column;
-	gap: 0.25rem;
-	font-size: 0.9rem;
-}
-
-.fretboard-controls .fretboard-check {
-	flex-direction: row;
-	align-items: center;
-	min-height: 2rem;
-}
-
-.fretboard-controls select,
-.fretboard-controls input[type='text'] {
-	min-height: 2rem;
-	font: inherit;
-}
-
-.fretboard-shapes {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem 1.5rem;
-	align-items: center;
-	margin: 0 0 0.75rem;
-	padding: 0.5rem 0.75rem 0.75rem;
-	border: 1px solid var(--fb-wire);
-	border-radius: 6px;
-}
-
-.fretboard-shapes legend {
-	padding: 0 0.25rem;
-	font-weight: 600;
-}
-
-.fretboard-shape-presets,
-.fretboard-shape-toggles {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem 0.75rem;
-}
-
-.fretboard-shape-presets button {
-	min-height: 2rem;
-	padding: 0 0.75rem;
-	font: inherit;
-	color: var(--fb-text);
-	background: transparent;
-	border: 1px solid var(--fb-muted-text);
-	border-radius: 999px;
-	cursor: pointer;
-}
-
-.fretboard-shape-presets button[aria-pressed='true'] {
-	color: var(--fb-on-marker);
-	background: var(--fb-scale);
-	border-color: var(--fb-scale);
-	font-weight: 600;
 }
 
 .fretboard-note {

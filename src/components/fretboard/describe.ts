@@ -27,9 +27,9 @@ export function describePosition(
 	return `String ${position.string} (${stringName}), ${fretText}: ${noteName}${roles.length ? `, ${roles.join(', ')}` : ''}${shapes ? `, ${shapes}` : ''}`;
 }
 
-/** "shape 1", "shapes 1 and 2", "shapes 1, 2 and 3"; empty for none. */
+/** "box 1", "boxes 1 and 2", "boxes 1, 2 and 3"; empty for none. */
 export function shapeWords(numbers: readonly number[]): string {
 	if (numbers.length === 0) return '';
-	if (numbers.length === 1) return `shape ${numbers[0]}`;
-	return `shapes ${numbers.slice(0, -1).join(', ')} and ${numbers[numbers.length - 1]}`;
+	if (numbers.length === 1) return `box ${numbers[0]}`;
+	return `boxes ${numbers.slice(0, -1).join(', ')} and ${numbers[numbers.length - 1]}`;
 }
