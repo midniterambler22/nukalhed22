@@ -56,6 +56,26 @@ Notes: A C D E G.
 
 Roots (A) inside the box: string 6 fret 5, string 4 fret 7, string 1 fret 5.
 
+### A minor pentatonic, all five positions
+
+Two notes per string. Frets are listed for strings 6 → 1. Each position shares one note per string with the next one. Position 5 continues into position 1 an octave higher (frets 17–20).
+
+| Position | Frets | 6 | 5 | 4 | 3 | 2 | 1 |
+|---|---|---|---|---|---|---|---|
+| 4 (open) | 0–3 | 0, 3 | 0, 3 | 0, 2 | 0, 2 | 1, 3 | 0, 3 |
+| 5 | 2–5 | 3, 5 | 3, 5 | 2, 5 | 2, 5 | 3, 5 | 3, 5 |
+| 1 | 5–8 | 5, 8 | 5, 7 | 5, 7 | 5, 7 | 5, 8 | 5, 8 |
+| 2 | 7–10 | 8, 10 | 7, 10 | 7, 10 | 7, 9 | 8, 10 | 8, 10 |
+| 3 | 9–13 | 10, 12 | 10, 12 | 10, 12 | 9, 12 | 10, 13 | 10, 12 |
+| 4 | 12–15 | 12, 15 | 12, 15 | 12, 14 | 12, 14 | 13, 15 | 12, 15 |
+
+Positions 1 and 2 share string 6 fret 8, string 5 fret 7, string 4 fret 7, string 3 fret 7, string 2 fret 8 and string 1 fret 8. Positions two steps apart (1 and 3) share no notes.
+
+Register selection on a 22-fret neck with no capo splits the frets into thirds (0–7⅓, 7⅓–14⅔, 14⅔–22). It picks a position by the middle fret of its range, and lists the best match first:
+- Low: positions 5, 4 (open), 1.
+- Middle: positions 3, 2, 4.
+- High: positions 1, 2, 5, all an octave up.
+
 ## Fretboard verification (2026-10-29)
 
 - Unit: every TESTING.md reference value, capo 2 → F♯2, frets below the capo unplayable, drop D, "open + fret" for every built-in tuning across 24 frets, fret-12 octaves, every A in frets 0–12, all positions of A3 and C4, bounds and validation errors.
@@ -63,6 +83,8 @@ Roots (A) inside the box: string 6 fret 5, string 4 fret 7, string 1 fret 5.
 - Manual in Chromium (production build): axe-core reports no violations in light or dark mode or with the chord error showing; Tab enters the grid on the first root; arrow keys and Enter select and the readout updates ("String 3, fret 7: D4"); at 390px wide the page has no horizontal scroll and the fretboard scrolls inside its panel.
 
 - Shapes (unit + component): just shape 1 marks exactly its notes in both octaves; 1–2 adds shape 2 and names overlap notes under both; all 5 covers every scale note between the outer shapes; none marks nothing; a chord tone outside the scale stays marked inside a shown shape's frets; preset buttons and checkboxes; picker hidden for non-pentatonic scales. Manual: axe clean with all 5 and just 1 in light and dark; at 390px the neck scrolls to the first chosen shape.
+
+- Positions (unit, `positions.test.ts`): the five boxes above, exact frets; open E minor; capo 2 F♯ minor position 1 on the capo fret, with nothing below the capo; drop D; every built-in tuning gives ascending, in-scale shapes at most 5 frets wide; all 12 keys have all five positions; shared notes and next/previous along the neck; register thirds, including the fallback with a high capo; major pentatonic; non-pentatonic formulas are rejected.
 
 ## Known failures
 
