@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { chordPitchClasses, parseChordSymbol, scalePitchClasses } from '../music-theory';
-import { createInstrumentOrThrow, isMarked, markPositions } from './index';
+import { chordPitchClasses, getScale, parseChordSymbol, scalePitchClasses } from '../music-theory';
+import {
+	createInstrumentOrThrow,
+	filterShapes,
+	getScalePositions,
+	isMarked,
+	markPositions,
+	type MarkedPosition,
+} from './index';
 
 const guitar = createInstrumentOrThrow();
 // A minor pentatonic: A C D E G. Am chord tones: A C E. Pitch classes: A=9 C=0 D=2 E=4 G=7.
@@ -64,5 +71,70 @@ describe('markPositions', () => {
 		});
 		const gSharp = withGSharp.find((p) => p.string === 6 && p.fret === 4);
 		expect(gSharp).toMatchObject({ isScaleNote: false, isChordTone: true });
+	});
+});
+
+describe('markPositions with shapes', () => {
+	const intervals = getScale('minor-pentatonic').intervals.map((i) => i.semitones);
+	const shapes = getScalePositions(guitar, 9, intervals);
+	const mark = (numbers: number[], chordTones = A_MINOR_CHORD) =>
+		markPositions(
+			guitar,
+			{ root: 9, scale: A_MINOR_PENTATONIC, chordTones },
+			undefined,
+			filterShapes(shapes, numbers),
+		);
+	const at = (marked: MarkedPosition[], string: number, fret: number) => {
+		const position = marked.find((p) => p.string === string && p.fret === fret);
+		if (!position) throw new Error(`No position at string ${string}, fret ${fret}`);
+		return position;
+	};
+
+	it('just shape 1 marks exactly its notes (both octaves), each tagged shape 1', () => {
+		const marked = mark([1]);
+		const inShapes = marked.filter((p) => p.isScaleNote);
+		const expected = filterShapes(shapes, [1]).flatMap((s) => s.notes);
+		expect(inShapes).toHaveLength(expected.length);
+		expect(inShapes.every((p) => p.shapeNumbers.includes(1))).toBe(true);
+		// Shape 1 sits at frets 5–8 and again at 17–20; nothing at fret 10.
+		expect(at(marked, 6, 5)).toMatchObject({ isRoot: true, isScaleNote: true });
+		expect(at(marked, 6, 17)).toMatchObject({ isRoot: true });
+		expect(at(marked, 4, 10)).toMatchObject({
+			isScaleNote: false,
+			isChordTone: false,
+			shapeNumbers: [],
+		});
+	});
+
+	it('shapes 1–2 add shape 2 and record shared notes under both numbers', () => {
+		const marked = mark([1, 2]);
+		expect(at(marked, 4, 10).isScaleNote).toBe(true); // G on the D string, shape 2 only
+		expect(at(marked, 4, 10).shapeNumbers).toEqual([2]);
+		// Frets 7 and 8 are where shapes 1 and 2 overlap.
+		expect(at(marked, 6, 8).shapeNumbers).toEqual([1, 2]);
+	});
+
+	it('all five shapes mark every scale note between the first and last shape', () => {
+		const marked = mark([1, 2, 3, 4, 5]);
+		const unshaped = marked.filter(
+			(p) => A_MINOR_PENTATONIC.includes(p.pitchClass) && !p.isScaleNote,
+		);
+		expect(unshaped.every((p) => p.fret > 20 || p.fret < 2)).toBe(true);
+	});
+
+	it('no shapes marks nothing', () => {
+		expect(mark([]).some(isMarked)).toBe(false);
+	});
+
+	it('keeps a chord tone outside the scale when it is inside a shown shape', () => {
+		const marked = mark([1], chordPitchClasses(parseChordSymbol('E7')));
+		expect(at(marked, 6, 4)).toMatchObject({ isChordTone: false }); // G♯ left of shape 1 (5–8)
+		expect(at(marked, 4, 6)).toMatchObject({ isChordTone: true, isScaleNote: false }); // G♯ inside
+	});
+
+	it('without shapes, shapeNumbers is empty', () => {
+		expect(markPositions(guitar, { root: 9 }).every((p) => p.shapeNumbers.length === 0)).toBe(
+			true,
+		);
 	});
 });

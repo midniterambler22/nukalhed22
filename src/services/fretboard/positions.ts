@@ -193,6 +193,14 @@ export function getScalePositions(
 	return positions;
 }
 
+/** Every instance of the given shape numbers (e.g. [1, 2] for shapes 1 and 2), in neck order. */
+export function filterShapes(
+	positions: readonly ScalePosition[],
+	numbers: readonly number[],
+): ScalePosition[] {
+	return positions.filter((p) => numbers.includes(p.number));
+}
+
 /** The exact string/fret locations two positions have in common. */
 export function getSharedNotes(a: ScalePosition, b: ScalePosition): PositionNote[] {
 	return a.notes.filter((note) =>

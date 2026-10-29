@@ -23,5 +23,13 @@ export function describePosition(
 				: `fret ${position.fret}, capo`
 			: `fret ${position.fret}`;
 	const roles = roleWords(position);
-	return `String ${position.string} (${stringName}), ${fretText}: ${noteName}${roles.length ? `, ${roles.join(', ')}` : ''}`;
+	const shapes = shapeWords(position.shapeNumbers);
+	return `String ${position.string} (${stringName}), ${fretText}: ${noteName}${roles.length ? `, ${roles.join(', ')}` : ''}${shapes ? `, ${shapes}` : ''}`;
+}
+
+/** "shape 1", "shapes 1 and 2", "shapes 1, 2 and 3"; empty for none. */
+export function shapeWords(numbers: readonly number[]): string {
+	if (numbers.length === 0) return '';
+	if (numbers.length === 1) return `shape ${numbers[0]}`;
+	return `shapes ${numbers.slice(0, -1).join(', ')} and ${numbers[numbers.length - 1]}`;
 }

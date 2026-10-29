@@ -1,10 +1,18 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createInstrumentOrThrow, markPositions, type Instrument } from '../../services/fretboard';
+import {
+	createInstrumentOrThrow,
+	filterShapes,
+	getScalePositions,
+	markPositions,
+	type Instrument,
+} from '../../services/fretboard';
+import { shapeWords } from './describe';
 import {
 	chordPitchClasses,
 	formatNote,
+	getScale,
 	parseChordSymbol,
 	scalePitchClasses,
 	spellPitchClass,
@@ -217,6 +225,55 @@ describe('Fretboard', () => {
 	it('shows a message when there is nothing to draw', () => {
 		render(<Fretboard instrument={guitar} positions={[]} noteName={noteName} label="empty" />);
 		expect(screen.getByText('No frets to show.')).toBeTruthy();
+	});
+});
+
+describe('Fretboard shapes', () => {
+	const guitar = createInstrumentOrThrow();
+	const intervals = getScale('minor-pentatonic').intervals.map((i) => i.semitones);
+	const shapes = filterShapes(getScalePositions(guitar, 9, intervals), [1, 2]);
+
+	it('labels each shown shape above the neck and names shapes on each note', () => {
+		const positions = markPositions(
+			guitar,
+			{ root: 9, scale: A_MINOR_PENTATONIC },
+			undefined,
+			shapes,
+		);
+		const { container } = render(
+			<Fretboard
+				instrument={guitar}
+				positions={positions}
+				noteName={noteName}
+				label="x"
+				shapes={shapes}
+			/>,
+		);
+		const labels = [...container.querySelectorAll('.fretboard-shape-label')].map(
+			(el) => el.textContent,
+		);
+		expect(labels).toEqual(['Shape 1', 'Shape 2', 'Shape 1', 'Shape 2']);
+		expect(
+			screen.getByRole('gridcell', {
+				name: 'String 6 (E), fret 8: C, scale note, shapes 1 and 2',
+			}),
+		).toBeTruthy();
+		expect(
+			screen.getByRole('gridcell', {
+				name: 'String 6 (E), fret 5: A, root, scale note, shape 1',
+			}),
+		).toBeTruthy();
+	});
+});
+
+describe('shapeWords', () => {
+	it.each([
+		[[], ''],
+		[[3], 'shape 3'],
+		[[1, 2], 'shapes 1 and 2'],
+		[[1, 2, 3], 'shapes 1, 2 and 3'],
+	])('%j → %s', (numbers, words) => {
+		expect(shapeWords(numbers)).toBe(words);
 	});
 });
 

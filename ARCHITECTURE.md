@@ -58,7 +58,7 @@ A browser-based app built with React + TypeScript + Vite. Audio is processed loc
 - SVG, one column per fret in the range, string 1 at the top. Left-handed mirrors the columns. A nut is drawn when the range starts at fret 0, a capo bar when it starts at the capo fret.
 - Roles never rely on color: square = root, circle = scale note, outer ring = chord tone, hollow ring = chord tone outside the scale, plus a text label on every marker and a `FretboardLegend` in words.
 - The board is an ARIA `grid` (rows = strings, gridcells = frets) with one tab stop. Arrow keys move along the drawn neck (mirrored for left-handed), Home/End jump to the ends of a string, Enter/Space/click select. Each cell's accessible name reads like "String 6 (E), fret 5: A, root, chord tone, scale note".
-- `FretboardExplorer` is the workspace control: key, scale, chord symbol, tuning, capo, handedness and "show all notes", with a live readout of the selected note's exact pitch (e.g. "D4").
+- `FretboardExplorer` is the workspace control: key, scale, chord symbol, tuning, capo, handedness and "show all notes", with a live readout of the selected note's exact pitch (e.g. "D4"). For pentatonic scales it adds a shape picker (presets Just 1 / 1–2 / 1–3 / 1–4 / All 5 plus a checkbox per shape). The chosen shapes go to `markPositions`, which keeps roles only on notes inside them and records `shapeNumbers` per note, and to `Fretboard`, which labels each shape's fret span above the neck.
 
 ## Core data types (planned)
 

@@ -2,7 +2,7 @@
 
 Tracks milestones, tasks, dependencies, and progress. Update this file as work completes.
 
-**Status (2026-10-29):** Phase 1 is done except Playwright/axe-core in the repo. Phase 2 has started: the SVG fretboard shows any key, scale and chord with keyboard navigation, and the scale-position engine exists but isn't in the UI yet.
+**Status (2026-10-29):** Phase 1 is done except Playwright/axe-core in the repo. Phase 2 has started: the SVG fretboard shows any key, scale and chord with keyboard navigation, and pentatonic scales can be shown as any mix of the five shapes (just 1, 1–2, 1–2–3, all 5, or a custom set).
 
 **Build order:** This plan follows SOP §21. Mark decided on 2026-10-29 that automated key, tempo and chord analysis comes before the chord timeline and practice features (instead of the manual-chords-first order in PROJECT_INSTRUCTIONS §15). Manual chord editing still exists, as the correction layer on top of analysis results.
 
@@ -42,8 +42,8 @@ Goal: a user can pick a key and scale and see accurate, connected positions. (SO
 - [x] SVG fretboard: strings, frets, markers, note labels
 - [x] Note selection and root-note highlighting
 - [x] Scale-note and chord-tone highlighting, distinguished by shape/label, not color alone
-- [~] Five connected minor-pentatonic positions (fret ranges, roots, exact string/fret pairs) (engine in `positions.ts`; UI not yet)
-- [~] Shared notes between adjacent positions; next/previous navigation (engine in `positions.ts`; UI not yet)
+- [x] Five connected minor-pentatonic positions (fret ranges, roots, exact string/fret pairs), shown one at a time or in any combination
+- [~] Shared notes between adjacent positions; next/previous navigation (shared notes are named "shapes 1 and 2" on the board; next/previous controls not yet)
 - [~] Low / Middle / High register selection that picks valid positions (engine in `positions.ts`; UI not yet)
 - [ ] Configurable fret range that doesn't change the underlying calculations
 - [x] Keyboard navigation and visible focus on the fretboard

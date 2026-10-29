@@ -1,4 +1,4 @@
-import { useId, useMemo, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import {
 	lowestPlayableFret,
 	openMidiForString,
@@ -6,6 +6,7 @@ import {
 	type FretPosition,
 	type Instrument,
 	type MarkedPosition,
+	type ScalePosition,
 } from '../../services/fretboard';
 import { midiToPitchClass, type PitchClass } from '../../services/music-theory';
 import { describePosition } from './describe';
@@ -24,7 +25,13 @@ export interface FretboardProps {
 	showAllNotes?: boolean;
 	selected?: Pick<FretPosition, 'string' | 'fret'> | null;
 	onSelect?: (position: MarkedPosition) => void;
+	/** Scale shapes to label above the neck (the same ones passed to `markPositions`). */
+	shapes?: readonly ScalePosition[];
 }
+
+const SHAPE_LANE_HEIGHT = 20;
+const SHAPE_LANE_GAP = 4;
+const SHAPE_AREA = 2 * (SHAPE_LANE_HEIGHT + SHAPE_LANE_GAP) + 4;
 
 type Cell = Pick<FretPosition, 'string' | 'fret'>;
 
@@ -38,6 +45,7 @@ export function Fretboard({
 	showAllNotes = false,
 	selected = null,
 	onSelect,
+	shapes,
 }: FretboardProps) {
 	const strings = stringCount(instrument);
 	const lowest = lowestPlayableFret(instrument);
@@ -49,9 +57,25 @@ export function Fretboard({
 		return { min: Math.min(...frets), max: Math.max(...frets) };
 	}, [positions]);
 	const layout = useMemo(
-		() => computeLayout(range, strings, lowest, instrument.handedness),
-		[range, strings, lowest, instrument.handedness],
+		() => computeLayout(range, strings, lowest, instrument.handedness, shapes ? SHAPE_AREA : 0),
+		[range, strings, lowest, instrument.handedness, shapes],
 	);
+	// Bring the lowest shown shape into view when the shape selection changes
+	// (the neck is wider than a phone screen).
+	const scrollRef = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		const container = scrollRef.current;
+		const first = shapes
+			?.map((shape) => Math.max(shape.fretRange.min, range.min))
+			.filter((fret) => fret <= range.max)
+			.sort((a, b) => a - b)[0];
+		if (!container || first === undefined) return;
+		const x = layout.cellX(first);
+		container.scrollLeft = left
+			? x + layout.cellWidth - container.clientWidth + 16
+			: x - layout.cellWidth - 16;
+	}, [shapes, range, layout, left]);
+
 	const stringNames = useMemo(() => {
 		const names: string[] = [];
 		for (let s = 1; s <= strings; s++)
@@ -107,7 +131,7 @@ export function Fretboard({
 	const markerR = 13;
 
 	return (
-		<div className="fretboard-scroll">
+		<div className="fretboard-scroll" ref={scrollRef}>
 			<svg
 				className="fretboard"
 				role="grid"
@@ -120,6 +144,43 @@ export function Fretboard({
 				onFocus={() => setHasFocus(true)}
 				onBlur={() => setHasFocus(false)}
 			>
+				{shapes && (
+					<g aria-hidden="true">
+						{[...shapes]
+							.sort((a, b) => a.fretRange.min - b.fretRange.min)
+							.map((shape, index) => {
+								const min = Math.max(shape.fretRange.min, range.min);
+								const max = Math.min(shape.fretRange.max, range.max);
+								if (min > max) return null;
+								const xMin = layout.cellX(min);
+								const xMax = layout.cellX(max);
+								const x = Math.min(xMin, xMax) - layout.cellWidth / 2 + 2;
+								const width = Math.abs(xMax - xMin) + layout.cellWidth - 4;
+								const y = 6 + (index % 2) * (SHAPE_LANE_HEIGHT + SHAPE_LANE_GAP);
+								return (
+									<g key={`shape-${shape.number}-${shape.startFret}`}>
+										<rect
+											className="fretboard-shape-band"
+											x={x}
+											y={y}
+											width={width}
+											height={SHAPE_LANE_HEIGHT}
+											rx={4}
+										/>
+										<text
+											className="fretboard-shape-label"
+											x={x + width / 2}
+											y={y + SHAPE_LANE_HEIGHT / 2}
+											textAnchor="middle"
+											dominantBaseline="central"
+										>
+											Shape {shape.number}
+										</text>
+									</g>
+								);
+							})}
+					</g>
+				)}
 				<g aria-hidden="true">
 					{layout.columns.map((fret) => {
 						const dots = inlayDots(fret);

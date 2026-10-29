@@ -36,13 +36,16 @@ export function computeLayout(
 	strings: number,
 	lowestPlayable: number,
 	handedness: Handedness,
+	/** Extra space above string 1, e.g. for shape labels. */
+	extraTop = 0,
 ): FretboardLayout {
+	const top = PADDING_TOP + extraTop;
 	const frets: number[] = [];
 	for (let fret = range.min; fret <= range.max; fret++) frets.push(fret);
 	const columns = handedness === 'left' ? [...frets].reverse() : frets;
 	const hasOpenColumn = range.min === lowestPlayable;
 	const width = PADDING_X * 2 + frets.length * CELL_WIDTH;
-	const height = PADDING_TOP + PADDING_BOTTOM + (strings - 1) * STRING_GAP;
+	const height = top + PADDING_BOTTOM + (strings - 1) * STRING_GAP;
 
 	const indexOf = (fret: number) => {
 		const index = columns.indexOf(fret);
@@ -60,7 +63,7 @@ export function computeLayout(
 		endX: width - PADDING_X,
 		cellX,
 		wireX,
-		stringY: (string) => PADDING_TOP + (string - 1) * STRING_GAP,
+		stringY: (string) => top + (string - 1) * STRING_GAP,
 		cellWidth: CELL_WIDTH,
 		stringGap: STRING_GAP,
 		columns,

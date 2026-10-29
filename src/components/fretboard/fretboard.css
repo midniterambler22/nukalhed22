@@ -13,6 +13,7 @@
 	--fb-ring: #7a4b00;
 	--fb-focus: #0b57d0;
 	--fb-selected: #1d1d1d;
+	--fb-bg-band: #fffaf0;
 	--fb-error: #a3201f;
 }
 
@@ -32,6 +33,7 @@
 		--fb-ring: #ffc561;
 		--fb-focus: #a8c7ff;
 		--fb-selected: #f1ede4;
+		--fb-bg-band: #3a3328;
 		--fb-error: #ff8a80;
 	}
 }
@@ -51,6 +53,7 @@
 	--fb-ring: #ffc561;
 	--fb-focus: #a8c7ff;
 	--fb-selected: #f1ede4;
+	--fb-bg-band: #3a3328;
 	--fb-error: #ff8a80;
 }
 
@@ -94,6 +97,18 @@
 .fretboard-fret-number {
 	fill: var(--fb-muted-text);
 	font-size: 13px;
+}
+
+.fretboard-shape-band {
+	fill: var(--fb-bg-band);
+	stroke: var(--fb-muted-text);
+	stroke-width: 1;
+}
+
+.fretboard-shape-label {
+	fill: var(--fb-text);
+	font-size: 12px;
+	font-weight: 600;
 }
 
 .fretboard-cell {
@@ -217,6 +232,52 @@
 .fretboard-controls input[type='text'] {
 	min-height: 2rem;
 	font: inherit;
+}
+
+.fretboard-shapes {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1.5rem;
+	align-items: center;
+	margin: 0 0 0.75rem;
+	padding: 0.5rem 0.75rem 0.75rem;
+	border: 1px solid var(--fb-wire);
+	border-radius: 6px;
+}
+
+.fretboard-shapes legend {
+	padding: 0 0.25rem;
+	font-weight: 600;
+}
+
+.fretboard-shape-presets,
+.fretboard-shape-toggles {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 0.75rem;
+}
+
+.fretboard-shape-presets button {
+	min-height: 2rem;
+	padding: 0 0.75rem;
+	font: inherit;
+	color: var(--fb-text);
+	background: transparent;
+	border: 1px solid var(--fb-muted-text);
+	border-radius: 999px;
+	cursor: pointer;
+}
+
+.fretboard-shape-presets button[aria-pressed='true'] {
+	color: var(--fb-on-marker);
+	background: var(--fb-scale);
+	border-color: var(--fb-scale);
+	font-weight: 600;
+}
+
+.fretboard-note {
+	margin: 0 0 0.75rem;
+	color: var(--fb-muted-text);
 }
 
 .fretboard-error {
