@@ -2,7 +2,7 @@
 
 Documents testing procedures, expected results, and known failures.
 
-**Status (2026-10-29):** Vitest is set up, with Testing Library + jsdom for component tests (opt in per file with `// @vitest-environment jsdom`). 366 tests pass: music theory, fretboard engine, scale positions, the fretboard component, audio file validation, playback, decoding and the song player. Playwright and axe-core aren't in the repo yet; the fretboard and player UIs were checked with axe-core in Chromium by hand (see below).
+**Status (2026-10-29):** Vitest is set up, with Testing Library + jsdom for component tests (opt in per file with `// @vitest-environment jsdom`). 438 tests pass: music theory, fretboard engine, scale positions, the fretboard component, audio file validation, playback, decoding, the song player, the analysis engine and the analysis panels. Playwright and axe-core aren't in the repo yet; the fretboard and player UIs were checked with axe-core in Chromium by hand (see below).
 
 Run `npm test`. Test files sit next to their code as `*.test.ts` / `*.test.tsx`.
 
@@ -94,6 +94,32 @@ Register selection on a 22-fret neck with no capo splits the frets into thirds (
 - Component (`SongPlayer.test.tsx`): privacy note and limits shown; unsupported and unplayable files refused; load → play → pause → seek → ±5 s; drag and drop; volume and mute; damaged file disables the controls; a decode failure keeps playback; a 21-minute song is never decoded; the previous object URL is revoked and a refused file keeps the current song; a stale decode is ignored; a seek while playing shows at once, before the next animation frame.
 - Manual in Chromium (production build, generated 30-second test tones): MP3, WAV, M4A (AAC), raw AAC (ADTS) and FLAC each load, report 0:30 and decode at 44.1 kHz. Playback advances; seeking with the slider while playing and while paused lands where set and keeps playing from there; arrow keys move 1 s; clicking the waveform seeks; playback stops at the end and the button returns to Play. Random bytes named `.mp3` give the "can't play this file" message; a `.txt` file is refused before loading. axe-core: no violations in light or dark mode. At 375px wide there is no horizontal scroll. No console errors.
 - Not yet tested: Safari and Firefox (codec support differs: Firefox can't play some M4A/ALAC files, older Safari can't play FLAC), real recordings over 10 minutes, and files near the 200 MB limit.
+
+## Analysis verification (2026-10-29)
+
+Reference songs are rendered by `src/tests/synth.ts` from a score (strummed chords with harmonics, bass, kick on 1 and 3, snare on 2 and 4, eighth-note hi-hat), so the right answers are exact. These prove the maths and catch regressions. **They are not a measure of accuracy on real recordings, which hasn't been measured yet.**
+
+| Reference song (SOP §8 case) | Key | Tempo | Beats within 50 ms | Chord time correct |
+|---|---|---|---|---|
+| C G Am F, 120 BPM (major key) | C major ✓ | 120 ✓ | ≥ 95% | ≥ 95% (100% measured) |
+| Am Dm E7 Am, 96 BPM (minor key, dominant 7th) | A minor ✓ | 96 ✓ | ≥ 95% | ≥ 95% |
+| 12-bar blues in A, 100 BPM (blues, dominant 7ths) | A major ✓ | 100 ✓ | ≥ 95% | ≥ 95% |
+| B♭ Gm E♭ F, 85 BPM, no drums (flat spelling) | B♭ major ✓ | 85 ✓ | ≥ 95% | ≥ 95% |
+| G Em C D, 70 BPM | G major ✓ | 70 ✓ | ≥ 95% | ≥ 95% |
+| D A Bm G, 160 BPM (kick/snare half-time trap) | D major ✓ | 160 ✓ | ≥ 95% | ≥ 95% |
+| E A B E, 140 BPM, distortion + noise (dense) | E major ✓ | 140 ✓ | ≥ 95% | ≥ 95% |
+| C F G C → D G A D (changing tonal centre) | sections C major, D major ✓; overall key confidence low | 120 ✓ | | ≥ 95% |
+| Am C (ambiguous relative keys) | A minor / C major as top two, not "likely" ✓ | | | |
+| All 12 major chords in turn (no key) | low confidence ✓ | | | |
+| White noise | key and tempo low, "very uncertain" note ✓ | | | |
+
+Also: silence and audio under 5 s fail with a message; a 4 s silent lead-in is "no chord" with no beats; 44.1 kHz input works. Unit tests cover the FFT (bin placement, Parseval), chroma (A440 → A, C triad → C E G), onsets, tempo on pulse trains (60–150 BPM, double-time and ambiguous offbeats), every key from its own profile, key spelling (B♭ major, F♯ minor, E♭ minor), chord-fit weights, tonal sections, chord templates from theory formulas, smoothing, and the worker engine (progress, errors, crash, cancel, fallback when the worker can't load).
+
+Component tests (`analysis.test.tsx`): idle and decoding text; progress status and progress bar; key, tempo, alternatives and notes; confidence words (likely, possible, uncertain) and "?" on uncertain chords; chord buttons' spoken names include alternatives and seek on click; changing key, double time, no key, no beat, no chords; failure alert with Try again; a new song cancels the old job and ignores its late result; unexpected errors.
+
+Manual in Chromium (production build, 390 px wide, light and dark): a 58 s 12-bar blues WAV decodes and analyzes in the worker in about 1.3 s (A major, 100 BPM, A7/D7/E7 at the right bar lines); tapping a chord seeks playback; axe-core reports no violations; no horizontal scroll; no console errors. The single-file preview build falls back to on-page analysis if its worker can't load.
+
+Not yet tested: real recordings, Safari and Firefox, songs near the 20-minute limit (expect about 25 s of analysis for 20 minutes in Chromium), tunings other than A = 440 Hz.
 
 ## Known failures
 

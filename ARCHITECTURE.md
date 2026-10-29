@@ -2,7 +2,7 @@
 
 Documents the technical architecture, module boundaries, and recorded decisions. The full requirements are in PROJECT_INSTRUCTIONS §3–§8. This file records how they're realized and why.
 
-**Status (2026-10-29):** App scaffolded. The music theory module, fretboard engine (instrument model, positions), SVG fretboard component, audio service, audio file validation and song player are implemented; other modules are planned.
+**Status (2026-10-29):** App scaffolded. The music theory module, fretboard engine (instrument model, positions), SVG fretboard component, audio service, audio file validation, song player and analysis service are implemented; other modules are planned.
 
 ## Platform
 
@@ -16,7 +16,7 @@ A browser-based app built with React + TypeScript + Vite. Audio is processed loc
 | Fretboard engine | `src/services/fretboard` | Instrument model (tuning, capo, strings), note↔position mapping, scale positions, register selection | music theory |
 | Audio service | `src/services/audio` | Load, play, pause, seek, loop, speed; exposes playback time | browser audio APIs |
 | Timeline engine | `src/services/state` | Chord events, active-event lookup from playback time, corrections layer | audio service (time only) |
-| Analysis service | `src/services/analysis` | Key, tempo, chord estimates behind a replaceable interface | audio data |
+| Analysis service | `src/services/analysis` | Key, tempo, beat and chord estimates behind a replaceable interface | music theory, audio data |
 | Practice / persistence | `src/services/state` | Saved sessions, preferences (local storage first) | timeline, fretboard |
 | Validation | `src/services/validation` | Validation of files, saved sessions, and tunings | none |
 | UI | `src/components`, `src/pages` | Display and interaction only; no theory math | all services |
@@ -70,6 +70,19 @@ A browser-based app built with React + TypeScript + Vite. Audio is processed loc
 - `App` owns `useLocalSong()` so later phases (analysis, timeline, guidance) share the same song and clock. Phase 4 reads `analysisAudio` when its status is `ready`.
 - Waveform: `computePeaks` + `normalizePeaks` give 240 bars. The SVG is pointer-only and hidden from assistive technology; the Position slider (with spoken `aria-valuetext`) is the accessible way to seek. Played bars are solid and unplayed bars faint, with a playhead line, so progress isn't shown by color alone.
 
+## Analysis service
+
+`src/services/analysis`, imported through `index.ts`. Plain TypeScript, no dependencies; uses the theory module for chord formulas and spelling. All results are estimates with a `Confidence` (`value` 0–1 and `level` high / medium / low at 0.7 and 0.4).
+
+- **Interface.** The UI talks only to an `AnalysisEngine` (`analyze(input, onProgress) → { result, cancel }`). `createWorkerEngine` runs `analyzeAudio` in `analysis.worker.ts`; if the worker can't start, the same job runs on the page. `useSongAnalysis` starts a job when the song's decoded audio is ready and cancels it when another song opens, so a late result never shows for the wrong song.
+- **Features** (`features.ts`, `fft.ts`): a chromagram from ~186 ms windows (G2–B6, each note's FFT bins weighted to sum to 1 so noise doesn't favour high pitch classes) and an onset envelope at 100 frames/s from spectral flux over 36 log-spaced bands (so cymbals don't drown out kick, bass and strums).
+- **Tempo** (`tempo.ts`): autocorrelation with a preference around 120 BPM picks the beat period; dynamic programming (Ellis 2007) places beats; if offbeats are at least 60% as strong as beats, the tempo is doubled (kick on 1 and 3, snare on 2 and 4 otherwise reads as half speed). Moderately strong offbeats set `doubleTimeBpm` and cap the confidence at medium. BPM comes from a line fitted through the beat times.
+- **Chords** (`chords.ts`): chroma averaged over half beats (or 0.5 s steps without a steady beat) is compared by cosine similarity with templates built from `chordPitchClasses` plus the first five harmonics, for major, minor, 7 and m7 on all 12 roots, then smoothed with a Viterbi pass (`viterbi.ts`). Quiet or unpitched segments are "no chord". Confidence is the chord's softmax share per segment.
+- **Key** (`key.ts`): Krumhansl–Kessler profile correlation plus up to 0.5 for how well the recognized chords fit each key as diatonic chords (tonic 1, IV/V 0.7, others 0.4; major V allowed in minor). Chord fit separates keys that share six notes (E vs B major). Tonal sections come from 16-second windows smoothed with Viterbi; sections under 20 s are folded in. When the key changes, the single key's confidence is capped at low.
+- **Separation of layers.** `ChordEvent.source` is always `'auto'` here. User corrections (Phase 5) go in their own layer and never overwrite these results.
+- **Errors.** `AnalysisError` with codes `too-short` (< 5 s), `silent`, `failed` and `cancelled`; each message says what to do next. A result for noise says it's very uncertain instead of failing.
+- **Limits.** Assumes A = 440 Hz; names only major, minor, 7 and m7 (others show as the nearest); no time signature, sections or slash chords; tested only on synthetic audio so far.
+
 ## Core data types (planned)
 
 - `PitchClass` (0–11), `Note` (pitch class + octave + spelling)
@@ -95,4 +108,4 @@ Timestamps are in seconds (floating point) everywhere.
 | 2026-10-29 | Build order follows SOP §21: analysis before the chord timeline | Mark's decision; manual chord editing becomes the correction layer on top of analysis results |
 | 2026-10-29 | Native `<audio>` element + Web Audio decode; no Tone.js or wavesurfer.js yet | The element gives play, pause, seek, volume and an accurate clock for every format the browser supports; `OfflineAudioContext` gives samples for analysis. A ~40-line SVG waveform covers the overview. Revisit Tone.js for speed change without pitch shift (Phase 6) and wavesurfer.js if we need zoom or regions |
 | 2026-10-29 | 200 MB file limit; analysis decode limited to 20 minutes, mono 44.1 kHz | Keeps the in-browser decode within memory on ordinary laptops and phones; 44.1 kHz is what Essentia.js expects |
-| — | Analysis engine | To decide in Phase 4 after testing against known audio |
+| 2026-10-29 | Own analysis DSP instead of Essentia.js | Essentia.js is AGPL-3.0 (would bind the app's licence), ~10 MB of WASM, and unpublished since 2022. Meyda (MIT) only extracts features. The classic methods needed (chroma, onset autocorrelation + DP beats, key profiles, chord templates + Viterbi) are ~900 lines, testable, and run in a worker on any browser. Revisit a model-based chord recognizer if real-recording accuracy is poor |

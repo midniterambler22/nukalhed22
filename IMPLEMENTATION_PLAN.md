@@ -2,7 +2,7 @@
 
 Tracks milestones, tasks, dependencies, and progress. Update this file as work completes.
 
-**Status (2026-10-29):** Phase 1 is done except Playwright/axe-core in the repo. Phase 2 has started: the SVG fretboard shows any key, scale and chord with keyboard navigation, and pentatonic scales can be shown as any mix of the five shapes (just 1, 1–2, 1–2–3, all 5, or a custom set). Phase 3 is done: a local song can be chosen or dropped, played, paused, seeked and decoded in the browser for analysis.
+**Status (2026-10-29):** Phase 1 is done except Playwright/axe-core in the repo. Phase 2 has started: the SVG fretboard shows any key, scale and chord with keyboard navigation, and pentatonic scales can be shown as any mix of the five shapes (just 1, 1–2, 1–2–3, all 5, or a custom set). Phase 3 is done: a local song can be chosen or dropped, played, paused, seeked and decoded in the browser for analysis. Phase 4 is done for synthetic reference songs: key, tempo, beats and chords are estimated on the device with confidence; accuracy on real recordings hasn't been measured yet.
 
 **Build order:** This plan follows SOP §21. Mark decided on 2026-10-29 that automated key, tempo and chord analysis comes before the chord timeline and practice features (instead of the manual-chords-first order in PROJECT_INSTRUCTIONS §15). Manual chord editing still exists, as the correction layer on top of analysis results.
 
@@ -69,13 +69,15 @@ Goal: load and play a local song reliably. (SOP §7, SOP §21 step 5)
 
 Goal: estimate key, tempo, and chords from audio, with honest confidence. (SOP §8, SOP §21 step 6)
 
-- [ ] Evaluate Essentia.js and alternatives against known test audio; record results
-- [ ] Replaceable analysis interface; runs locally, off the main thread
-- [ ] Tempo and beat estimation
-- [ ] Key estimation
-- [ ] Chord recognition with timestamps
-- [ ] Confidence display; uncertain results labelled as estimates
-- [ ] Clear states for analysis in progress, failed, and low confidence
+- [x] Evaluate Essentia.js and alternatives; record the decision (ARCHITECTURE.md decision log: own DSP)
+- [x] Replaceable analysis interface (`AnalysisEngine`); runs locally in a Web Worker
+- [x] Tempo and beat estimation, with a half/double-time check
+- [x] Key estimation, with alternatives and key-change sections
+- [x] Chord recognition with timestamps (major, minor, 7, m7)
+- [x] Confidence display; uncertain results labelled as estimates
+- [x] Clear states for analysis in progress, failed, and low confidence
+- [ ] Measure accuracy on real recordings with known chords (needs songs we're allowed to use, with reference chord charts)
+- [ ] Check analysis in Safari and Firefox (only Chromium checked so far)
 
 **Done when:** a loaded song shows an estimated key, tempo and chord list with confidence, and failures say what happened and what to do next.
 

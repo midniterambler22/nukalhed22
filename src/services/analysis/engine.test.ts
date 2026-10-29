@@ -73,9 +73,19 @@ describe('worker engine', () => {
 		await expect(job.result).rejects.toMatchObject({ code: 'silent' });
 	});
 
+	it('runs on this thread when the worker script can’t load', async () => {
+		const { worker, engine } = setup();
+		const job = engine.analyze(silent);
+		worker.onerror?.({ preventDefault() {} } as ErrorEvent);
+		// The inline run reaches the real analysis, which refuses silence.
+		await expect(job.result).rejects.toMatchObject({ code: 'silent' });
+		expect(worker.terminated).toBe(true);
+	});
+
 	it('reports a crash as a failure with a next step', async () => {
 		const { worker, engine } = setup();
 		const job = engine.analyze(silent);
+		worker.reply({ type: 'progress', progress: { stage: 'spectrum', fraction: 0 } });
 		worker.onerror?.({ preventDefault() {} } as ErrorEvent);
 		await expect(job.result).rejects.toMatchObject({
 			code: 'failed',

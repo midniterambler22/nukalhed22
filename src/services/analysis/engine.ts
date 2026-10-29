@@ -72,12 +72,15 @@ export function createWorkerEngine(createWorker: () => Worker): AnalysisEngine {
 				return createInlineEngine().analyze(input, onProgress);
 			}
 			let settle: ((error: AnalysisError) => void) | null = null;
+			let heard = false;
+			let fallback: AnalysisJob | null = null;
 			const result = new Promise<AnalysisResult>((resolve, reject) => {
 				settle = (error) => {
 					worker.terminate();
 					reject(error);
 				};
 				worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
+					heard = true;
 					const message = event.data;
 					if (message.type === 'progress') {
 						onProgress?.(message.progress);
@@ -90,8 +93,16 @@ export function createWorkerEngine(createWorker: () => Worker): AnalysisEngine {
 				};
 				worker.onerror = (event) => {
 					event.preventDefault();
-					settle?.(toAnalysisError(null));
+					if (!settle) return;
 					settle = null;
+					worker.terminate();
+					if (!heard) {
+						// The worker never started (blocked or missing script): run here instead.
+						fallback = createInlineEngine().analyze(input, onProgress);
+						fallback.result.then(resolve, reject);
+						return;
+					}
+					reject(toAnalysisError(null));
 				};
 				// Send a copy so the song's own samples stay usable on this thread.
 				const samples = input.samples.slice();
@@ -103,6 +114,7 @@ export function createWorkerEngine(createWorker: () => Worker): AnalysisEngine {
 				cancel: () => {
 					settle?.(cancelled());
 					settle = null;
+					fallback?.cancel();
 				},
 			};
 		},
