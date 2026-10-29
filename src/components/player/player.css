@@ -1,0 +1,136 @@
+.player {
+	display: grid;
+	gap: 0.75rem;
+}
+
+.player p {
+	margin: 0;
+}
+
+.player-privacy,
+.player-hint,
+.player-meta,
+.player-status {
+	color: var(--color-muted);
+}
+
+.player-drop {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 0.75rem;
+	align-items: center;
+	padding: 1rem;
+	border: 2px dashed var(--color-border);
+	border-radius: 0.5rem;
+}
+
+.player-drop.is-dragging {
+	border-style: solid;
+	border-color: var(--color-focus);
+	background: color-mix(in srgb, var(--color-focus) 10%, transparent);
+}
+
+.player-hint {
+	flex-basis: 100%;
+	font-size: 0.9rem;
+}
+
+.player-button {
+	min-height: 2.25rem;
+	min-width: 2.75rem;
+	padding: 0 0.85rem;
+	font: inherit;
+	color: var(--color-text);
+	background: var(--color-surface);
+	border: 1px solid var(--color-muted);
+	border-radius: 0.4rem;
+	cursor: pointer;
+}
+
+.player-button:disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+}
+
+.player-button[aria-pressed='true'] {
+	font-weight: 700;
+	color: var(--color-surface);
+	background: var(--color-text);
+	border-color: var(--color-text);
+}
+
+.player-choose,
+.player-play {
+	font-weight: 600;
+}
+
+.player-play {
+	min-width: 5.5rem;
+}
+
+.player-error {
+	color: var(--color-error);
+	font-weight: 600;
+}
+
+.player-title {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 0.75rem;
+	align-items: baseline;
+	overflow-wrap: anywhere;
+}
+
+.player-waveform {
+	display: block;
+	width: 100%;
+	height: 4rem;
+	cursor: pointer;
+}
+
+.player-waveform-bar {
+	fill: var(--color-muted);
+	opacity: 0.35;
+}
+
+.player-waveform-bar.is-played {
+	fill: var(--color-text);
+	opacity: 1;
+}
+
+.player-waveform-head {
+	stroke: var(--color-focus);
+	stroke-width: 2;
+	vector-effect: non-scaling-stroke;
+}
+
+.player-transport,
+.player-sliders {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+	align-items: center;
+}
+
+.player-time {
+	font-variant-numeric: tabular-nums;
+}
+
+.player-slider {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.player-position {
+	flex: 1 1 16rem;
+}
+
+.player-position input {
+	flex: 1;
+	min-width: 8rem;
+}
+
+.player-slider input {
+	min-height: 2rem;
+}

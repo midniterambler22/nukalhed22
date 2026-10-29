@@ -5,6 +5,7 @@
 	--color-muted: #55534d;
 	--color-border: #c9c6bd;
 	--color-focus: #1a5fb4;
+	--color-error: #a3201f;
 	color-scheme: light dark;
 	font-family:
 		system-ui,
@@ -25,6 +26,7 @@
 		--color-muted: #b4b2aa;
 		--color-border: #45444c;
 		--color-focus: #8cb4ff;
+		--color-error: #ff8a80;
 	}
 }
 
@@ -83,6 +85,7 @@ body {
 	border-radius: 0.5rem;
 }
 
+.workspace-region--player,
 .workspace-region--fretboard {
 	grid-column: 1 / -1;
 }

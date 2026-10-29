@@ -10,6 +10,9 @@ Significant changes and releases.
 
 ### Added
 
+- Song player (`src/components/player`): choose or drop a local MP3, WAV, M4A, AAC or FLAC file (up to 200 MB), then play, pause, seek, skip 5 s, and set volume or mute, with a waveform overview and a note that the song never leaves the device. Unsupported, damaged and unplayable files get a message that says what to try next.
+- Audio service (`src/services/audio`): playback controller that mirrors one audio element (the app's single clock), in-browser decoding to mono 44.1 kHz samples for analysis (songs up to 20 minutes), waveform peaks, and time formatting.
+- Audio file validation (`src/services/validation`): format detection, size limit and browser support check.
 - App scaffold: Vite + React + TypeScript (strict), ESLint, Prettier (tabs), Vitest.
 - Main workspace shell with placeholder regions marked as not available yet.
 - Fretboard engine (`src/services/fretboard`): validated instrument model (tuning, capo, fret count, handedness), six built-in tunings, string + fret → pitch, pitch → every position, and root / scale-note / chord-tone marking.

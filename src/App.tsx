@@ -1,21 +1,25 @@
 import { FretboardExplorer } from './components/fretboard';
+import { SongPlayer } from './components/player';
+import { useLocalSong } from './hooks/useLocalSong';
 
 /**
- * App shell. Each region of the main workspace is a placeholder until its phase lands
- * (see IMPLEMENTATION_PLAN.md). Placeholders say so plainly instead of showing fake data.
+ * App shell. Regions whose phase hasn't landed yet are placeholders (see
+ * IMPLEMENTATION_PLAN.md) and say so plainly instead of showing fake data.
  */
-const WORKSPACE_REGIONS = [
-	{ id: 'player', title: 'Song and playback', status: 'Not available yet (Phase 3)' },
-	{ id: 'key', title: 'Key and tempo', status: 'Not available yet (Phase 5)' },
-	{ id: 'chords', title: 'Current and upcoming chords', status: 'Not available yet (Phase 3)' },
+const PLACEHOLDER_REGIONS = [
+	{ id: 'key', title: 'Key and tempo', status: 'Not available yet (Phase 4)' },
+	{ id: 'chords', title: 'Current and upcoming chords', status: 'Not available yet (Phase 5)' },
 	{
 		id: 'scale',
 		title: 'Recommended scale and starting fret',
-		status: 'Not available yet (Phase 4)',
+		status: 'Not available yet (Phase 6)',
 	},
 ] as const;
 
 export function App() {
+	// Owned here so later phases (analysis, timeline, guidance) share the same song and clock.
+	const song = useLocalSong();
+
 	return (
 		<>
 			<header className="app-header">
@@ -23,7 +27,14 @@ export function App() {
 				<p>Song → key → chords → scale → starting fret → fretboard → play along.</p>
 			</header>
 			<main className="workspace">
-				{WORKSPACE_REGIONS.map((region) => (
+				<section
+					className="workspace-region workspace-region--player"
+					aria-labelledby="region-player"
+				>
+					<h2 id="region-player">Song and playback</h2>
+					<SongPlayer song={song} />
+				</section>
+				{PLACEHOLDER_REGIONS.map((region) => (
 					<section
 						key={region.id}
 						className={`workspace-region workspace-region--${region.id}`}
