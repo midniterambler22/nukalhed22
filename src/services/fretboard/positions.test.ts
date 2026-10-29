@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getScale, type ScaleId } from '../music-theory';
 import {
 	createInstrumentOrThrow,
 	getNextPosition,
@@ -18,7 +19,9 @@ function defined<T>(value: T | undefined): T {
 	return value;
 }
 
-const MINOR_PENTATONIC = [0, 3, 5, 7, 10];
+const semitones = (id: ScaleId) => getScale(id).intervals.map((i) => i.semitones);
+
+const MINOR_PENTATONIC = semitones('minor-pentatonic');
 const A = 9;
 const E = 4;
 
@@ -259,7 +262,7 @@ describe('neck limits, keys, tunings, and capo', () => {
 	});
 
 	it('works for other pentatonic formulas (major pentatonic, C)', () => {
-		const cMajor = getScalePositions(guitar, 0, [0, 2, 4, 7, 9]);
+		const cMajor = getScalePositions(guitar, 0, semitones('major-pentatonic'));
 		const p1 = defined(cMajor.find((p) => p.number === 1 && p.startFret === 8));
 		expect(fretsByString(p1)).toEqual({
 			6: [8, 10],
