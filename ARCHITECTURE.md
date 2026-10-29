@@ -92,6 +92,7 @@ Timestamps are in seconds (floating point) everywhere.
 | 2026-10-29 | Strings numbered 1 (high) to N (low); frets absolute, capo fret = lowest playable | Matches guitar convention and TESTING.md; scale shapes and register selection stay capo-independent |
 | 2026-10-29 | Instrument validation returns errors instead of throwing | Tunings can come from saved sessions or user input (PROJECT_INSTRUCTIONS §9) |
 | 2026-10-29 | Fretboard as an SVG ARIA grid with a roving tab stop | One tab stop for 130+ cells; arrow keys match how players move on the neck; WCAG 2.2 AA |
+| 2026-10-29 | Build order follows SOP §21: analysis before the chord timeline | Mark's decision; manual chord editing becomes the correction layer on top of analysis results |
 | 2026-10-29 | Native `<audio>` element + Web Audio decode; no Tone.js or wavesurfer.js yet | The element gives play, pause, seek, volume and an accurate clock for every format the browser supports; `OfflineAudioContext` gives samples for analysis. A ~40-line SVG waveform covers the overview. Revisit Tone.js for speed change without pitch shift (Phase 6) and wavesurfer.js if we need zoom or regions |
 | 2026-10-29 | 200 MB file limit; analysis decode limited to 20 minutes, mono 44.1 kHz | Keeps the in-browser decode within memory on ordinary laptops and phones; 44.1 kHz is what Essentia.js expects |
-| — | Analysis engine | To decide in Phase 5 after testing against known audio |
+| — | Analysis engine | To decide in Phase 4 after testing against known audio |
