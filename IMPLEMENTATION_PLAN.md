@@ -2,7 +2,7 @@
 
 Tracks milestones, tasks, dependencies, and progress. Update this file as work completes.
 
-**Status (2026-10-29):** Phase 1 in progress. The app is scaffolded and the music theory engine is in place with unit tests. The instrument model and fretboard engine are being built in a separate branch.
+**Status (2026-10-29):** Phase 1 is done except Playwright/axe-core in the repo. Phase 2 has started: the SVG fretboard shows any key, scale and chord with keyboard navigation, and pentatonic scales can be shown as any mix of the five shapes (just 1, 1–2, 1–2–3, all 5, or a custom set).
 
 **Build order:** This plan follows SOP §21. Mark decided on 2026-10-29 that automated key, tempo and chord analysis comes before the chord timeline and practice features (instead of the manual-chords-first order in PROJECT_INSTRUCTIONS §15). Manual chord editing still exists, as the correction layer on top of analysis results.
 
@@ -27,9 +27,9 @@ Goal: a working, testable app shell with a correct theory and fretboard engine. 
 - [ ] Add npm script: test:e2e
 - [x] Fill in commands in CLAUDE.md and README.md
 - [x] Music theory module: pitch classes (0–11), note naming/enharmonics, intervals, scale formulas, chord formulas, transposition
-- [ ] Instrument model: string count, tuning, capo, fret count, validation
-- [ ] Fretboard engine: string + fret → pitch; note → all positions
-- [~] Unit tests against the reference values in TESTING.md (theory values done; fretboard values come with the fretboard engine)
+- [x] Instrument model: string count, tuning, capo, fret count, validation
+- [x] Fretboard engine: string + fret → pitch; note → all positions
+- [x] Unit tests against the reference values in TESTING.md
 - [x] Main workspace layout shell (placeholder regions clearly marked unavailable)
 - [x] Record the decision on using Tonal.js vs. our own module in ARCHITECTURE.md
 
@@ -39,16 +39,16 @@ Goal: a working, testable app shell with a correct theory and fretboard engine. 
 
 Goal: a user can pick a key and scale and see accurate, connected positions. (SOP §5)
 
-- [ ] SVG fretboard: strings, frets, markers, note labels
-- [ ] Note selection and root-note highlighting
-- [ ] Scale-note and chord-tone highlighting, distinguished by shape/label, not color alone
-- [ ] Five connected minor-pentatonic positions (fret ranges, roots, exact string/fret pairs)
-- [ ] Shared notes between adjacent positions; next/previous navigation
-- [ ] Low / Middle / High register selection that picks valid positions
+- [x] SVG fretboard: strings, frets, markers, note labels
+- [x] Note selection and root-note highlighting
+- [x] Scale-note and chord-tone highlighting, distinguished by shape/label, not color alone
+- [x] Five connected minor-pentatonic positions (fret ranges, roots, exact string/fret pairs), shown one at a time or in any combination
+- [~] Shared notes between adjacent positions; next/previous navigation (shared notes are named "shapes 1 and 2" on the board; next/previous controls not yet)
+- [~] Low / Middle / High register selection that picks valid positions (engine in `positions.ts`; UI not yet)
 - [ ] Configurable fret range that doesn't change the underlying calculations
-- [ ] Keyboard navigation and visible focus on the fretboard
+- [x] Keyboard navigation and visible focus on the fretboard
 - [ ] Optional fingering and interval labels
-- [ ] Left-handed display
+- [x] Left-handed display
 
 **Done when:** a user selects a key and minor pentatonic and can move accurately between all five positions using the keyboard.
 

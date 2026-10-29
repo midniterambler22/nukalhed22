@@ -2,9 +2,9 @@
 
 Documents testing procedures, expected results, and known failures.
 
-**Status (2026-10-29):** Vitest is set up. The music theory module has 154 unit tests, all passing. Playwright and axe-core aren't set up yet.
+**Status (2026-10-29):** Vitest is set up, with Testing Library + jsdom for component tests (opt in per file with `// @vitest-environment jsdom`). 271 tests pass: music theory, fretboard engine, scale positions, and the fretboard component. Playwright and axe-core aren't in the repo yet; the fretboard UI was checked with axe-core in Chromium by hand (see below).
 
-Run `npm test`. Test files sit next to their code as `*.test.ts`.
+Run `npm test`. Test files sit next to their code as `*.test.ts` / `*.test.tsx`.
 
 ## Test layers
 
@@ -55,6 +55,14 @@ Notes: A C D E G.
 | 1 (high E) | 5, 8 | A, C |
 
 Roots (A) inside the box: string 6 fret 5, string 4 fret 7, string 1 fret 5.
+
+## Fretboard verification (2026-10-29)
+
+- Unit: every TESTING.md reference value, capo 2 → F♯2, frets below the capo unplayable, drop D, "open + fret" for every built-in tuning across 24 frets, fret-12 octaves, every A in frets 0–12, all positions of A3 and C4, bounds and validation errors.
+- Component: gridcell names, shapes per role, single tab stop, arrow/Home/End navigation and edges, left-handed mirroring, Enter/Space/click selection, `aria-selected`, capo and nut drawing, key-aware spelling (B♭ in F major), invalid chord message.
+- Manual in Chromium (production build): axe-core reports no violations in light or dark mode or with the chord error showing; Tab enters the grid on the first root; arrow keys and Enter select and the readout updates ("String 3, fret 7: D4"); at 390px wide the page has no horizontal scroll and the fretboard scrolls inside its panel.
+
+- Shapes (unit + component): just shape 1 marks exactly its notes in both octaves; 1–2 adds shape 2 and names overlap notes under both; all 5 covers every scale note between the outer shapes; none marks nothing; a chord tone outside the scale stays marked inside a shown shape's frets; preset buttons and checkboxes; picker hidden for non-pentatonic scales. Manual: axe clean with all 5 and just 1 in light and dark; at 390px the neck scrolls to the first chosen shape.
 
 ## Known failures
 
