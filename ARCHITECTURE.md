@@ -58,5 +58,4 @@ Timestamps are in seconds (floating point) everywhere.
 | 2026-10-29 | Browser-first, local processing | PROJECT_INSTRUCTIONS §3 and §6, privacy |
 | 2026-10-29 | Own theory module instead of Tonal.js | The needed core is small (under 800 lines). Owning it keeps one tested source of truth with the exact types the fretboard and recommendation engines need, and adds no dependency. Revisit if we need a broad chord dictionary or chord detection from note sets. |
 | 2026-10-29 | TypeScript 6.0, not 7 | typescript-eslint supports TypeScript below 6.1 only |
-| 2026-10-29 | Build order follows SOP §21: analysis before the chord timeline | Mark's decision; manual chord editing becomes the correction layer |
-| — | Analysis engine | To decide in Phase 4 after testing against known audio |
+| — | Analysis engine | To decide in Phase 5 after testing against known audio |
