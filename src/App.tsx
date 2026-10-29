@@ -1,14 +1,14 @@
+import { ChordList, KeyTempoPanel } from './components/analysis';
 import { FretboardExplorer } from './components/fretboard';
 import { SongPlayer } from './components/player';
 import { useLocalSong } from './hooks/useLocalSong';
+import { useSongAnalysis } from './hooks/useSongAnalysis';
 
 /**
  * App shell. Regions whose phase hasn't landed yet are placeholders (see
  * IMPLEMENTATION_PLAN.md) and say so plainly instead of showing fake data.
  */
 const PLACEHOLDER_REGIONS = [
-	{ id: 'key', title: 'Key and tempo', status: 'Not available yet (Phase 4)' },
-	{ id: 'chords', title: 'Current and upcoming chords', status: 'Not available yet (Phase 5)' },
 	{
 		id: 'scale',
 		title: 'Recommended scale and starting fret',
@@ -19,6 +19,7 @@ const PLACEHOLDER_REGIONS = [
 export function App() {
 	// Owned here so later phases (analysis, timeline, guidance) share the same song and clock.
 	const song = useLocalSong();
+	const analysis = useSongAnalysis(song.analysisAudio);
 
 	return (
 		<>
@@ -33,6 +34,20 @@ export function App() {
 				>
 					<h2 id="region-player">Song and playback</h2>
 					<SongPlayer song={song} />
+				</section>
+				<section
+					className="workspace-region workspace-region--key"
+					aria-labelledby="region-key"
+				>
+					<h2 id="region-key">Key and tempo</h2>
+					<KeyTempoPanel audio={song.analysisAudio} analysis={analysis} />
+				</section>
+				<section
+					className="workspace-region workspace-region--chords"
+					aria-labelledby="region-chords"
+				>
+					<h2 id="region-chords">Chords</h2>
+					<ChordList analysis={analysis} onSeek={(t) => song.controller.seek(t)} />
 				</section>
 				{PLACEHOLDER_REGIONS.map((region) => (
 					<section

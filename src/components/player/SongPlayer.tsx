@@ -224,7 +224,7 @@ function AnalysisAudioStatus({ state }: { state: LocalSong['analysisAudio'] }) {
 		const kHz = (state.audio.sampleRate / 1000).toLocaleString('en', {
 			maximumFractionDigits: 1,
 		});
-		text = `Ready for analysis: ${formatTime(state.audio.duration)} decoded on this device (${kHz} kHz). Key, tempo and chord detection comes in the next phase.`;
+		text = `Ready for analysis: ${formatTime(state.audio.duration)} decoded on this device (${kHz} kHz).`;
 	}
 	return (
 		<p role="status" className="player-status">

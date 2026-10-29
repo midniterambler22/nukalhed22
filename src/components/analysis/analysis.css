@@ -1,0 +1,151 @@
+.analysis {
+	display: grid;
+	gap: 0.75rem;
+}
+
+.analysis p {
+	margin: 0;
+}
+
+.analysis-muted {
+	margin: 0;
+	color: var(--color-muted);
+}
+
+.analysis-error {
+	color: var(--color-error);
+	font-weight: 600;
+}
+
+.analysis-button {
+	justify-self: start;
+	min-height: 2.25rem;
+	padding: 0 0.85rem;
+	font: inherit;
+	color: var(--color-text);
+	background: var(--color-surface);
+	border: 1px solid var(--color-muted);
+	border-radius: 0.4rem;
+	cursor: pointer;
+}
+
+.analysis-progress {
+	width: 100%;
+	height: 0.75rem;
+}
+
+.analysis-facts {
+	display: grid;
+	gap: 0.75rem;
+	margin: 0;
+}
+
+.analysis-facts dt {
+	font-size: 0.9rem;
+	color: var(--color-muted);
+}
+
+.analysis-facts dd {
+	margin: 0;
+}
+
+.analysis-value {
+	font-size: 1.4rem;
+	font-weight: 700;
+}
+
+.analysis-detail {
+	display: block;
+	color: var(--color-muted);
+	font-size: 0.95rem;
+}
+
+/* Confidence is always written as a word; the border style only reinforces it. */
+.analysis-tag {
+	display: inline-block;
+	padding: 0 0.45rem;
+	font-size: 0.85rem;
+	font-weight: 600;
+	vertical-align: 0.2em;
+	border: 1px solid var(--color-text);
+	border-radius: 1rem;
+}
+
+.analysis-tag--medium {
+	border-style: dashed;
+}
+
+.analysis-tag--low {
+	border-style: dotted;
+	color: var(--color-muted);
+	border-color: var(--color-muted);
+}
+
+.analysis-subheading {
+	margin: 0 0 0.25rem;
+	font-size: 1rem;
+}
+
+.analysis-sections {
+	margin: 0;
+	padding-left: 1.25rem;
+}
+
+.analysis-notes summary {
+	cursor: pointer;
+}
+
+.analysis-notes ul {
+	margin: 0.5rem 0 0;
+	padding-left: 1.25rem;
+	color: var(--color-muted);
+}
+
+.analysis-label {
+	color: var(--color-muted);
+}
+
+.analysis-chords {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+	max-height: 16rem;
+	margin: 0;
+	padding: 0.25rem;
+	overflow-y: auto;
+	list-style: none;
+}
+
+.analysis-chord {
+	display: grid;
+	min-width: 3.5rem;
+	min-height: 2.75rem;
+	padding: 0.2rem 0.5rem;
+	font: inherit;
+	text-align: left;
+	color: var(--color-text);
+	background: var(--color-surface);
+	border: 1px solid var(--color-text);
+	border-radius: 0.4rem;
+	cursor: pointer;
+}
+
+.analysis-chord--medium {
+	border-style: dashed;
+}
+
+.analysis-chord--low {
+	color: var(--color-muted);
+	border-style: dotted;
+	border-color: var(--color-muted);
+}
+
+.analysis-chord-time {
+	font-size: 0.75rem;
+	color: var(--color-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.analysis-chord-name {
+	font-weight: 700;
+}
