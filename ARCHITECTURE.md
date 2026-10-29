@@ -82,4 +82,5 @@ Timestamps are in seconds (floating point) everywhere.
 | 2026-10-29 | Strings numbered 1 (high) to N (low); frets absolute, capo fret = lowest playable | Matches guitar convention and TESTING.md; scale shapes and register selection stay capo-independent |
 | 2026-10-29 | Instrument validation returns errors instead of throwing | Tunings can come from saved sessions or user input (PROJECT_INSTRUCTIONS §9) |
 | 2026-10-29 | Fretboard as an SVG ARIA grid with a roving tab stop | One tab stop for 130+ cells; arrow keys match how players move on the neck; WCAG 2.2 AA |
-| — | Analysis engine | To decide in Phase 5 after testing against known audio |
+| 2026-10-29 | Build order follows SOP §21: analysis before the chord timeline | Mark's decision; manual chord editing becomes the correction layer on top of analysis results |
+| — | Analysis engine | To decide in Phase 4 after testing against known audio |
