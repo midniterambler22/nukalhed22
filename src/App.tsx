@@ -6,12 +6,12 @@ import { FretboardExplorer } from './components/fretboard';
  */
 const WORKSPACE_REGIONS = [
 	{ id: 'player', title: 'Song and playback', status: 'Not available yet (Phase 3)' },
-	{ id: 'key', title: 'Key and tempo', status: 'Not available yet (Phase 5)' },
-	{ id: 'chords', title: 'Current and upcoming chords', status: 'Not available yet (Phase 3)' },
+	{ id: 'key', title: 'Key and tempo', status: 'Not available yet (Phase 4)' },
+	{ id: 'chords', title: 'Current and upcoming chords', status: 'Not available yet (Phase 5)' },
 	{
 		id: 'scale',
 		title: 'Recommended scale and starting fret',
-		status: 'Not available yet (Phase 4)',
+		status: 'Not available yet (Phase 6)',
 	},
 ] as const;
 
