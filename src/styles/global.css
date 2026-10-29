@@ -1,0 +1,98 @@
+:root {
+	--color-bg: #f7f6f2;
+	--color-surface: #ffffff;
+	--color-text: #1d1d1b;
+	--color-muted: #55534d;
+	--color-border: #c9c6bd;
+	--color-focus: #1a5fb4;
+	color-scheme: light dark;
+	font-family:
+		system-ui,
+		-apple-system,
+		'Segoe UI',
+		Roboto,
+		sans-serif;
+	line-height: 1.5;
+	color: var(--color-text);
+	background: var(--color-bg);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-bg: #16161a;
+		--color-surface: #202026;
+		--color-text: #ecebe6;
+		--color-muted: #b4b2aa;
+		--color-border: #45444c;
+		--color-focus: #8cb4ff;
+	}
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background: var(--color-bg);
+}
+
+:focus-visible {
+	outline: 3px solid var(--color-focus);
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+.app-header {
+	padding: 1rem;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.app-header h1 {
+	margin: 0;
+	font-size: 1.5rem;
+}
+
+.app-header p {
+	margin: 0.25rem 0 0;
+	color: var(--color-muted);
+}
+
+.workspace {
+	display: grid;
+	gap: 1rem;
+	padding: 1rem;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.workspace-region {
+	padding: 1rem;
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: 0.5rem;
+}
+
+.workspace-region--fretboard {
+	grid-column: 1 / -1;
+}
+
+.workspace-region h2 {
+	margin: 0 0 0.5rem;
+	font-size: 1.1rem;
+}
+
+.placeholder {
+	margin: 0;
+	color: var(--color-muted);
+	font-style: italic;
+}
