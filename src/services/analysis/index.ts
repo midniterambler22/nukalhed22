@@ -11,3 +11,4 @@ export {
 	type AnalysisEngine,
 	type AnalysisJob,
 } from './engine';
+export { keyName } from './key';

@@ -10,6 +10,12 @@ import {
 	type WorkspaceTab,
 } from './components/layout';
 import { PlaybackControls, SongImport } from './components/player';
+import {
+	ChordEditor,
+	KeyTempoEditor,
+	LoopControl,
+	type ChordEditorTarget,
+} from './components/chords';
 import { ChordScaleInfo, ScaleViewer } from './components/scales';
 import { NowPlaying, WaveformTimeline } from './components/timeline';
 import { useLocalSong, type LocalSong } from './hooks/useLocalSong';
@@ -19,9 +25,11 @@ import {
 	useScaleViewer,
 	type InstrumentSettings,
 } from './hooks/useScaleViewer';
+import { useLoop } from './hooks/useLoop';
 import { useSongAnalysis, type SongAnalysis } from './hooks/useSongAnalysis';
-import type { ChordEvent } from './services/analysis';
+import { useSongCorrections, type SongTimeline } from './hooks/useSongCorrections';
 import { DEMO_SONG } from './services/demo';
+import type { LoopRange } from './services/progression';
 
 type WorkspaceId = 'jam-master' | 'riff-builder' | 'chord-viewer' | 'scale-viewer' | 'song-info';
 
@@ -57,8 +65,6 @@ const PLANNED: Readonly<
 	},
 };
 
-const NO_CHORDS: readonly ChordEvent[] = [];
-
 /**
  * The studio workspace (UI_SPEC.md §4): header, song and timeline across the top,
  * song analysis on the left, the selected workspace in the center, its tools on the
@@ -72,11 +78,20 @@ export function App() {
 	const [settings, setSettings] = useState<InstrumentSettings>(DEFAULT_INSTRUMENT_SETTINGS);
 	const viewer = useScaleViewer(settings);
 	const [workspace, setWorkspace] = useState<WorkspaceId>('scale-viewer');
-	const [dialog, setDialog] = useState<'help' | 'settings' | null>(null);
+	const [dialog, setDialog] = useState<'help' | 'settings' | 'key-tempo' | null>(null);
+	const timeline = useSongCorrections(song.song, analysis);
+	const [editing, setEditing] = useState<ChordEditorTarget | null>(null);
+	// The loop belongs to one song; a new song starts without one.
+	const [loopState, setLoopState] = useState<{ song: object; loop: LoopRange } | null>(null);
+	const loop = loopState && loopState.song === song.song ? loopState.loop : null;
+	const setLoop = (next: LoopRange | null) =>
+		setLoopState(next && song.song ? { song: song.song, loop: next } : null);
+	useLoop(song.controller, loop);
 	const tabsId = useId();
 	const panelId = `${tabsId}-panel`;
 
-	const chords = analysis.state.status === 'done' ? analysis.state.result.chords : NO_CHORDS;
+	const chords = timeline.chords;
+	const duration = song.playback.duration;
 	const songTitle = song.song
 		? song.song.name === DEMO_SONG.fileName
 			? DEMO_SONG.title
@@ -90,6 +105,7 @@ export function App() {
 			<AppHeader
 				songTitle={songTitle}
 				analysis={analysis}
+				timeline={timeline}
 				onOpenHelp={() => setDialog('help')}
 				onOpenSettings={() => setDialog('settings')}
 			/>
@@ -98,16 +114,36 @@ export function App() {
 				<Panel title="Song" area="song" hideTitle>
 					<div className="song-strip">
 						<SongImport song={song} />
-						<WaveformTimeline song={song} chords={chords} />
-						<NowPlaying song={song} analysis={analysis} />
+						<WaveformTimeline song={song} chords={chords} loop={loop} />
+						<NowPlaying song={song} analysis={analysis} chords={chords} />
 					</div>
 				</Panel>
 
 				<div className={hasTools ? 'studio-grid has-tools' : 'studio-grid'}>
 					<Panel title="Song analysis" area="analysis" collapsible>
-						<AnalysisSummary analysis={analysis} hasSong={song.song !== null} />
-						<h3 className="panel-subtitle">Detected chords</h3>
-						<DetectedChords song={song} analysis={analysis} chords={chords} />
+						<AnalysisSummary
+							analysis={analysis}
+							hasSong={song.song !== null}
+							timeline={timeline}
+							onCorrect={() => setDialog('key-tempo')}
+						/>
+						<h3 className="panel-subtitle">Chords</h3>
+						<DetectedChords
+							song={song}
+							analysis={analysis}
+							timeline={timeline}
+							onEdit={(index) => {
+								const event = chords[index];
+								if (event)
+									setEditing({
+										kind: 'edit',
+										anchor: (event.start + event.end) / 2,
+									});
+							}}
+							onAdd={() =>
+								setEditing({ kind: 'add', time: song.controller.getCurrentTime() })
+							}
+						/>
 					</Panel>
 
 					<div className="studio-center">
@@ -126,7 +162,7 @@ export function App() {
 						>
 							{workspace === 'scale-viewer' && <ScaleViewer viewer={viewer} />}
 							{workspace === 'song-info' && (
-								<SongInfo song={song} analysis={analysis} />
+								<SongInfo song={song} analysis={analysis} timeline={timeline} />
 							)}
 							{planned && (
 								<PlannedWorkspace
@@ -147,9 +183,29 @@ export function App() {
 
 			<footer className="studio-playback">
 				<PlaybackControls song={song} chords={chords} />
+				<LoopControl
+					controller={song.controller}
+					timeline={timeline}
+					duration={duration}
+					loop={loop}
+					onLoopChange={setLoop}
+				/>
 			</footer>
 
 			<HelpDialog open={dialog === 'help'} onClose={() => setDialog(null)} />
+			<KeyTempoEditor
+				open={dialog === 'key-tempo'}
+				onClose={() => setDialog(null)}
+				timeline={timeline}
+			/>
+			<ChordEditor
+				target={editing}
+				onTargetChange={setEditing}
+				timeline={timeline}
+				controller={song.controller}
+				duration={duration}
+				onLoop={setLoop}
+			/>
 			<SettingsDialog
 				open={dialog === 'settings'}
 				onClose={() => setDialog(null)}
@@ -164,18 +220,25 @@ export function App() {
 function DetectedChords({
 	song,
 	analysis,
-	chords,
+	timeline,
+	onEdit,
+	onAdd,
 }: {
 	song: LocalSong;
 	analysis: SongAnalysis;
-	chords: readonly ChordEvent[];
+	timeline: SongTimeline;
+	onEdit(index: number): void;
+	onAdd(): void;
 }) {
-	const { current } = usePlaybackChord(song.controller, chords);
+	const { current } = usePlaybackChord(song.controller, timeline.chords);
 	return (
 		<ChordList
 			analysis={analysis}
+			timeline={timeline}
 			onSeek={(t) => song.controller.seek(t)}
 			currentIndex={current}
+			onEdit={song.song ? onEdit : undefined}
+			onAdd={song.playback.status === 'ready' ? onAdd : undefined}
 		/>
 	);
 }

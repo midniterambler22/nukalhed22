@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clampTime, describeTime, formatTime } from './time';
+import { clampTime, describeTime, formatPreciseTime, formatTime, parseTime } from './time';
 
 describe('formatTime', () => {
 	it.each([
@@ -39,5 +39,27 @@ describe('clampTime', () => {
 	it('only clamps at 0 when the duration is unknown', () => {
 		expect(clampTime(150, Infinity)).toBe(150);
 		expect(clampTime(150, Number.NaN)).toBe(150);
+	});
+});
+
+describe('precise times for editing', () => {
+	it('writes tenths of a second', () => {
+		expect(formatPreciseTime(0)).toBe('0:00.0');
+		expect(formatPreciseTime(83.46)).toBe('1:23.5');
+		expect(formatPreciseTime(59.96)).toBe('1:00.0');
+		expect(formatPreciseTime(Number.NaN)).toBe('0:00.0');
+	});
+
+	it('reads seconds, m:ss and h:mm:ss, and refuses anything else', () => {
+		expect(parseTime('83.5')).toBe(83.5);
+		expect(parseTime('1:23.5')).toBe(83.5);
+		expect(parseTime(' 0:05 ')).toBe(5);
+		expect(parseTime('1:02:03')).toBe(3723);
+		expect(parseTime(formatPreciseTime(83.46))).toBe(83.5);
+		expect(parseTime('1:75')).toBeNull();
+		expect(parseTime('1.5:20')).toBeNull();
+		expect(parseTime('-3')).toBeNull();
+		expect(parseTime('abc')).toBeNull();
+		expect(parseTime('')).toBeNull();
 	});
 });

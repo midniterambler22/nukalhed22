@@ -1,0 +1,111 @@
+.chord-editor {
+	display: grid;
+	gap: var(--space-3);
+	max-width: 34rem;
+}
+
+.chord-editor p {
+	margin: 0;
+	font-size: var(--font-size-sm);
+}
+
+.chord-editor-name {
+	font-size: var(--font-size-xl);
+}
+
+.chord-editor-review {
+	color: var(--color-warning);
+}
+
+.chord-editor-section {
+	display: grid;
+	gap: var(--space-2);
+	padding-top: var(--space-3);
+	border-top: 1px solid var(--color-border);
+}
+
+.chord-editor-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+	align-items: center;
+}
+
+.chord-editor-input {
+	flex: 1 1 8rem;
+	min-width: 0;
+	min-height: var(--touch-target);
+	padding: 0 var(--space-3);
+	font: inherit;
+	font-size: var(--font-size-md);
+	color: var(--color-text);
+	background: var(--color-surface-raised);
+	border: 1px solid var(--color-border-strong);
+	border-radius: var(--radius-md);
+}
+
+.chord-editor-input--time {
+	flex: 0 1 7rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.chord-editor-input[aria-invalid='true'] {
+	border-color: var(--color-error);
+	border-style: dashed;
+}
+
+.chord-editor-hint {
+	font-size: var(--font-size-xs) !important;
+}
+
+.chord-editor-times {
+	display: grid;
+	gap: var(--space-2);
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.chord-editor-times legend {
+	margin-bottom: var(--space-1);
+	font-size: var(--font-size-sm);
+	font-weight: 600;
+}
+
+.chord-editor-time {
+	display: grid;
+	gap: var(--space-1);
+}
+
+.loop-control {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-1);
+	align-items: center;
+}
+
+.loop-control.is-active {
+	padding: 0 var(--space-1) 0 var(--space-2);
+	border: 1px solid var(--color-accent);
+	border-radius: var(--radius-md);
+	background: var(--color-accent-soft);
+}
+
+.loop-control-label {
+	display: inline-flex;
+	gap: var(--space-1);
+	align-items: center;
+	font-size: var(--font-size-sm);
+	font-weight: 600;
+}
+
+.loop-control-time {
+	font-weight: 400;
+	color: var(--color-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.chord-editor > .chord-editor-section:first-child {
+	padding-top: 0;
+	border-top: 0;
+}
