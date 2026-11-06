@@ -42,13 +42,17 @@ export {
 export { formulaPitchClasses, parseFormula, spellFormula, type FormulaNote } from './formula';
 export {
 	SCALES,
+	SCALE_CATEGORIES,
 	SCALE_IDS,
 	getScale,
 	isScaleId,
 	scaleContains,
 	scaleDegreeOf,
 	scalePitchClasses,
+	scalesInCategory,
 	spellScale,
+	type ScaleCategory,
+	type ScaleCategoryId,
 	type ScaleDefinition,
 	type ScaleId,
 } from './scales';

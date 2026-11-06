@@ -4,59 +4,153 @@ import { parseNoteName } from './notes';
 import { semitonesBetween } from './pitch-class';
 import type { Interval, PitchClass, SpelledNote } from './types';
 
+export type ScaleCategoryId = 'pentatonic-blues' | 'major-modes' | 'minor-variations' | 'exotic';
+
+export interface ScaleCategory {
+	readonly id: ScaleCategoryId;
+	readonly name: string;
+}
+
+/** The four groups of the scale library, in display order (UI_SPEC §6). */
+export const SCALE_CATEGORIES: readonly ScaleCategory[] = [
+	{ id: 'pentatonic-blues', name: 'Pentatonic and blues' },
+	{ id: 'major-modes', name: 'Major scale and modes' },
+	{ id: 'minor-variations', name: 'Minor and harmonic variations' },
+	{ id: 'exotic', name: 'Advanced and exotic' },
+];
+
 export type ScaleId =
 	| 'minor-pentatonic'
 	| 'major-pentatonic'
-	| 'blues'
+	| 'minor-blues'
+	| 'major-blues'
 	| 'major'
 	| 'natural-minor'
+	| 'dorian'
+	| 'phrygian'
+	| 'lydian'
 	| 'mixolydian'
-	| 'dorian';
+	| 'locrian'
+	| 'harmonic-minor'
+	| 'melodic-minor'
+	| 'phrygian-dominant'
+	| 'hungarian-minor'
+	| 'whole-tone'
+	| 'diminished-half-whole'
+	| 'diminished-whole-half'
+	| 'altered'
+	| 'lydian-dominant';
 
 export interface ScaleDefinition {
 	readonly id: ScaleId;
 	readonly name: string;
-	/** Formula tokens relative to the major scale, e.g. ["1", "b3", "4", "5", "b7"]. */
+	readonly category: ScaleCategoryId;
+	/**
+	 * Formula tokens relative to the major scale, e.g. ["1", "b3", "4", "5", "b7"].
+	 * A degree may repeat (b2 and #2 in the altered scale) so notes are spelled the way players
+	 * read them; the formula still rises in pitch.
+	 */
 	readonly formula: readonly string[];
 	readonly intervals: readonly Interval[];
 }
 
-function defineScale(id: ScaleId, name: string, formula: readonly string[]): ScaleDefinition {
-	return { id, name, formula, intervals: parseFormula(formula) };
+function defineScale(
+	id: ScaleId,
+	name: string,
+	category: ScaleCategoryId,
+	formula: string,
+): ScaleDefinition {
+	const tokens = formula.split(' ');
+	return { id, name, category, formula: tokens, intervals: parseFormula(tokens) };
 }
 
-/** The starter scale library (PROJECT_INSTRUCTIONS §3E). Add new scales here as formulas. */
+/**
+ * The scale library (UI_SPEC §6): 20 scales in four groups, stored only as interval formulas.
+ * Notes and fretboard positions are computed from these for any root. Listed in display order.
+ */
 export const SCALES: Readonly<Record<ScaleId, ScaleDefinition>> = {
-	'minor-pentatonic': defineScale('minor-pentatonic', 'Minor pentatonic', [
-		'1',
-		'b3',
-		'4',
-		'5',
-		'b7',
-	]),
-	'major-pentatonic': defineScale('major-pentatonic', 'Major pentatonic', [
-		'1',
-		'2',
-		'3',
-		'5',
-		'6',
-	]),
-	blues: defineScale('blues', 'Blues', ['1', 'b3', '4', 'b5', '5', 'b7']),
-	major: defineScale('major', 'Major (Ionian)', ['1', '2', '3', '4', '5', '6', '7']),
-	'natural-minor': defineScale('natural-minor', 'Natural minor (Aeolian)', [
-		'1',
-		'2',
-		'b3',
-		'4',
-		'5',
-		'b6',
-		'b7',
-	]),
-	mixolydian: defineScale('mixolydian', 'Mixolydian', ['1', '2', '3', '4', '5', '6', 'b7']),
-	dorian: defineScale('dorian', 'Dorian', ['1', '2', 'b3', '4', '5', '6', 'b7']),
+	// Pentatonic and blues
+	'minor-pentatonic': defineScale(
+		'minor-pentatonic',
+		'Minor pentatonic',
+		'pentatonic-blues',
+		'1 b3 4 5 b7',
+	),
+	'major-pentatonic': defineScale(
+		'major-pentatonic',
+		'Major pentatonic',
+		'pentatonic-blues',
+		'1 2 3 5 6',
+	),
+	'minor-blues': defineScale('minor-blues', 'Minor blues', 'pentatonic-blues', '1 b3 4 b5 5 b7'),
+	'major-blues': defineScale('major-blues', 'Major blues', 'pentatonic-blues', '1 2 b3 3 5 6'),
+	// Major scale and modes
+	major: defineScale('major', 'Major (Ionian)', 'major-modes', '1 2 3 4 5 6 7'),
+	'natural-minor': defineScale(
+		'natural-minor',
+		'Natural minor (Aeolian)',
+		'major-modes',
+		'1 2 b3 4 5 b6 b7',
+	),
+	dorian: defineScale('dorian', 'Dorian', 'major-modes', '1 2 b3 4 5 6 b7'),
+	phrygian: defineScale('phrygian', 'Phrygian', 'major-modes', '1 b2 b3 4 5 b6 b7'),
+	lydian: defineScale('lydian', 'Lydian', 'major-modes', '1 2 3 #4 5 6 7'),
+	mixolydian: defineScale('mixolydian', 'Mixolydian', 'major-modes', '1 2 3 4 5 6 b7'),
+	locrian: defineScale('locrian', 'Locrian', 'major-modes', '1 b2 b3 4 b5 b6 b7'),
+	// Minor and harmonic variations
+	'harmonic-minor': defineScale(
+		'harmonic-minor',
+		'Harmonic minor',
+		'minor-variations',
+		'1 2 b3 4 5 b6 7',
+	),
+	'melodic-minor': defineScale(
+		'melodic-minor',
+		'Melodic minor',
+		'minor-variations',
+		'1 2 b3 4 5 6 7',
+	),
+	'phrygian-dominant': defineScale(
+		'phrygian-dominant',
+		'Phrygian dominant',
+		'minor-variations',
+		'1 b2 3 4 5 b6 b7',
+	),
+	'hungarian-minor': defineScale(
+		'hungarian-minor',
+		'Hungarian minor',
+		'minor-variations',
+		'1 2 b3 #4 5 b6 7',
+	),
+	// Advanced and exotic
+	'whole-tone': defineScale('whole-tone', 'Whole tone', 'exotic', '1 2 3 #4 #5 b7'),
+	'diminished-half-whole': defineScale(
+		'diminished-half-whole',
+		'Diminished (half-whole)',
+		'exotic',
+		'1 b2 #2 3 #4 5 6 b7',
+	),
+	'diminished-whole-half': defineScale(
+		'diminished-whole-half',
+		'Diminished (whole-half)',
+		'exotic',
+		'1 2 b3 4 b5 #5 6 7',
+	),
+	altered: defineScale('altered', 'Altered', 'exotic', '1 b2 #2 3 b5 #5 b7'),
+	'lydian-dominant': defineScale(
+		'lydian-dominant',
+		'Lydian dominant',
+		'exotic',
+		'1 2 3 #4 5 6 b7',
+	),
 };
 
 export const SCALE_IDS = Object.keys(SCALES) as readonly ScaleId[];
+
+/** The scales in one group, in display order. */
+export function scalesInCategory(category: ScaleCategoryId): ScaleDefinition[] {
+	return SCALE_IDS.map((id) => SCALES[id]).filter((scale) => scale.category === category);
+}
 
 export function isScaleId(value: string): value is ScaleId {
 	return Object.hasOwn(SCALES, value);

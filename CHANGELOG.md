@@ -11,6 +11,8 @@ Significant changes and releases.
 
 ### Added
 
+- Scale library (UI_SPEC §6): all 20 scales in four groups, stored as interval formulas and computed for any root (`SCALE_CATEGORIES`, `scalesInCategory`). New: Major blues, Phrygian, Lydian, Locrian, Harmonic minor, Melodic minor, Phrygian dominant, Hungarian minor, Whole tone, both Diminished scales, Altered, Lydian dominant. The Scale picker is grouped. The scale id `blues` is now `minor-blues` (Minor blues).
+
 - Chord timeline corrections (plan Phase 5): an Edit button on every chord opens an editor to rename it (or pick one of the analysis's alternatives), mark an estimate as right, move its start and end (typed as m:ss.s or taken from the playhead; neighbours grow or shrink), remove the change, undo your edits, play from it or loop it. "Add a chord at the playhead" adds a change, and lets you enter chords by hand when analysis fails or finds none. "Correct key or tempo" sets the key (any of 24) and tempo, with ×½, ×⅔ (shuffle) and ×2. Anything less than likely says "Needs review", with a "Review next" button. Corrections are a separate layer (`src/services/corrections`) laid over the analysis by time, saved in this browser per file, and kept when the analysis runs again; Song Info can remove them. The header, summary, chord list, timeline and Now/Next use the corrected values.
 - Loops (`src/services/progression/loop.ts`, `useLoop`): loop the chord playing now from the playback bar, grow or shrink the loop a chord at a time, and see it shaded on the timeline. The loop seeks back on the audio clock; seeking out of the loop isn't fought.
 - Time entry helpers `formatPreciseTime` and `parseTime`.
