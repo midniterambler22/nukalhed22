@@ -186,3 +186,35 @@ export function scaleDegreeOf(
 export function scaleContains(pitchClass: PitchClass, root: PitchClass, id: ScaleId): boolean {
 	return scaleDegreeOf(pitchClass, root, id) !== undefined;
 }
+
+/** How a scale is drawn as boxes: a five-note core, plus any notes added on top of it. */
+export interface ScaleBoxPlan {
+	/** Semitone offsets (0–11) of the five-note core the boxes are built from. */
+	readonly core: readonly number[];
+	/** Semitone offsets added inside each box, such as the blue note. Empty for pentatonics. */
+	readonly added: readonly number[];
+}
+
+/** The five-note scale each blues scale is built on. */
+const BOX_PARENTS: Partial<Record<ScaleId, ScaleId>> = {
+	'minor-blues': 'minor-pentatonic',
+	'major-blues': 'major-pentatonic',
+};
+
+function offsets(id: ScaleId): number[] {
+	return getScale(id).intervals.map((interval) => interval.semitones % 12);
+}
+
+/**
+ * Box plan for a scale, or undefined when the scale has no boxes (yet). Pentatonics are their
+ * own core. Blues scales use their pentatonic's five boxes and add the blue note wherever it
+ * falls inside a box, so the shapes you already know grow by one note.
+ */
+export function scaleBoxPlan(id: ScaleId): ScaleBoxPlan | undefined {
+	const own = offsets(id);
+	if (own.length === 5) return { core: own, added: [] };
+	const parent = BOX_PARENTS[id];
+	if (!parent) return undefined;
+	const core = offsets(parent);
+	return { core, added: own.filter((offset) => !core.includes(offset)) };
+}

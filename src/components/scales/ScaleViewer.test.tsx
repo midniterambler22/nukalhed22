@@ -54,6 +54,19 @@ describe('ScaleViewer', () => {
 		expect(labels).toContain('Box 1 (High)');
 	});
 
+	it('shows the five boxes for the minor blues, with the blue note inside them', () => {
+		render(<Harness />);
+		fireEvent.change(screen.getByLabelText('Scale'), { target: { value: 'minor-blues' } });
+		expect(screen.getByText(/^5 boxes, \d+ places on this neck$/)).toBeTruthy();
+		expect(screen.getByRole('grid', { name: /A Minor blues, all 5 boxes/ })).toBeTruthy();
+		// E♭ is the blue note: A string, fret 6, in box 1.
+		expect(
+			screen.getByRole('gridcell', {
+				name: /^String 5 \(A\), fret 6: E♭, scale note, box(es)? 1/,
+			}),
+		).toBeTruthy();
+	});
+
 	it('spells notes from the chosen key (B♭ in F major, not A♯)', () => {
 		render(<Harness />);
 		fireEvent.change(screen.getByLabelText('Key'), { target: { value: 'F' } });

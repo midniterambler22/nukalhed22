@@ -11,6 +11,8 @@ Significant changes and releases.
 
 ### Added
 
+- Blues boxes: Minor blues and Major blues now show Box 1–5, built from the pentatonic's five boxes with the blue note (♭5 or ♭3) added wherever it falls inside a box. `scaleBoxPlan` (theory) says how a scale is boxed; `getScalePositions` takes the added notes, and each note says whether it was added (`isAdded`).
+
 - CI (`.github/workflows/ci.yml`): pull requests and pushes to main run type check, lint, format check, tests and the production build on Node 22.
 
 - Scale library (UI_SPEC §6): all 20 scales in four groups, stored as interval formulas and computed for any root (`SCALE_CATEGORIES`, `scalesInCategory`). New: Major blues, Phrygian, Lydian, Locrian, Harmonic minor, Melodic minor, Phrygian dominant, Hungarian minor, Whole tone, both Diminished scales, Altered, Lydian dominant. The Scale picker is grouped. The scale id `blues` is now `minor-blues` (Minor blues).
