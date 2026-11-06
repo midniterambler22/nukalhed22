@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { LocalSong } from '../../hooks/useLocalSong';
 import { usePlaybackTime } from '../../hooks/usePlaybackTime';
-import type { ChordEvent } from '../../services/analysis';
 import { computePeaks, formatTime, normalizePeaks } from '../../services/audio';
-import { chordIndexAt, timeMarkers } from '../../services/progression';
+import type { TimelineChord } from '../../services/corrections';
+import { chordIndexAt, timeMarkers, type LoopRange } from '../../services/progression';
 import { chordColorSlots, displayChord } from '../analysis';
 import { Waveform } from '../player';
 import './timeline.css';
@@ -13,8 +13,10 @@ const ZOOMS = [1, 2, 4, 8] as const;
 
 export interface WaveformTimelineProps {
 	song: LocalSong;
-	/** Estimated chords, empty until the analysis finishes. */
-	chords: readonly ChordEvent[];
+	/** Chords with the user's corrections; empty until there are any. */
+	chords: readonly TimelineChord[];
+	/** The stretch being looped, shaded on the timeline. */
+	loop?: LoopRange | null;
 }
 
 /**
@@ -23,7 +25,7 @@ export interface WaveformTimelineProps {
  * chord moves playback there; the chord list and the Position slider are the
  * keyboard and screen-reader routes to the same thing.
  */
-export function WaveformTimeline({ song, chords }: WaveformTimelineProps) {
+export function WaveformTimeline({ song, chords, loop = null }: WaveformTimelineProps) {
 	const { controller, playback, analysisAudio } = song;
 	const time = usePlaybackTime(controller);
 	const [zoom, setZoom] = useState<(typeof ZOOMS)[number]>(1);
@@ -79,7 +81,8 @@ export function WaveformTimeline({ song, chords }: WaveformTimelineProps) {
 											'timeline-chord',
 											`chord-color-${slots.get(event.chord) ?? 0}`,
 											index === current ? 'is-current' : '',
-											event.confidence.level === 'low' ? 'is-uncertain' : '',
+											event.needsReview ? 'is-uncertain' : '',
+											event.edited ? 'is-edited' : '',
 										].join(' ')}
 										style={{
 											left: percent(event.start),
@@ -88,9 +91,18 @@ export function WaveformTimeline({ song, chords }: WaveformTimelineProps) {
 										onClick={() => controller.seek(event.start)}
 									>
 										{displayChord(event.chord)}
-										{event.confidence.level === 'low' && '?'}
+										{event.needsReview && '?'}
 									</div>
 								) : null,
+							)}
+							{loop && (
+								<div
+									className="timeline-loop"
+									style={{
+										left: percent(loop.start),
+										width: percent(loop.end - loop.start),
+									}}
+								/>
 							)}
 							<div className="timeline-head" style={{ left: `${progress * 100}%` }} />
 						</div>

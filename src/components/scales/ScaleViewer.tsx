@@ -4,8 +4,8 @@ import { ALL_BOXES } from '../../hooks/useScaleViewer';
 import {
 	formatPitch,
 	midiToPitch,
-	SCALE_IDS,
-	SCALES,
+	SCALE_CATEGORIES,
+	scalesInCategory,
 	type ScaleId,
 } from '../../services/music-theory';
 import { Fretboard, FretboardLegend } from '../fretboard';
@@ -83,10 +83,14 @@ export function ScaleViewer({ viewer }: ScaleViewerProps) {
 						value={viewer.scaleId}
 						onChange={(e) => viewer.setScaleId(e.target.value as ScaleId)}
 					>
-						{SCALE_IDS.map((sid) => (
-							<option key={sid} value={sid}>
-								{SCALES[sid].name}
-							</option>
+						{SCALE_CATEGORIES.map((category) => (
+							<optgroup key={category.id} label={category.name}>
+								{scalesInCategory(category.id).map((scale) => (
+									<option key={scale.id} value={scale.id}>
+										{scale.name}
+									</option>
+								))}
+							</optgroup>
 						))}
 					</select>
 				</label>

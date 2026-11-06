@@ -129,6 +129,22 @@ Manual in Chromium (dev server) at 1440, 900 and 390 px: the demo song loads, an
 
 Not yet tested: Safari, Firefox, a real phone (the preview is for that), screen readers.
 
+## Chord timeline corrections verification (2026-10-30)
+
+Unit tests: `corrections/chords.test.ts` (chord symbol normalizing; painting and clearing spans; the merged timeline equals the estimate with no corrections; the estimate is never mutated; rename, confirm, retime with neighbours filling the gap, refused timings, remove, add inside a chord, manual entry on an empty timeline, undo on one chord, corrections kept when re-analysis moves boundaries); `storage.test.ts` (round trip, empty corrections remove the entry, invalid saved data dropped, no storage or throwing storage); `song.test.ts` (key and tempo fall back to the estimate, keys spelled, BPM validation, 24 keys); `progression/loop.test.ts` (loop ranges, chords in a loop, jump only when playback crosses the end from inside); `audio/time.test.ts` (m:ss.s formatting and parsing). Component tests (`chords/chords.test.tsx`): Needs review count, renaming with an invalid then a valid chord, Review next and "is right", corrections surviving a new analysis result and a remount, retiming with an invalid then a valid time, looping a chord and growing the loop, correcting key and tempo (×⅔) and going back to the estimate, manual entry after a failed analysis.
+
+Manual in Chromium (production build) at 1440 and 390 px with the demo song: editing D7 to Dm7 updates the list, timeline, Now/Next and header; the correction is still there after reloading the page and re-making the demo; looping the 9.6–14.4 s chord while playing kept playback between 9.7 and 14.3 s over 12 s; no horizontal scroll; no console errors; axe-core (WCAG 2.2 AA and best practice) reports no violations on the workspace, the chord editor, while looping, and in the key and tempo editor, at both widths.
+
+Not yet tested: Safari, Firefox, a real phone, screen readers.
+
+## Real recordings
+
+Copyrighted recordings stay out of Git. Decode with ffmpeg (`-ac 1 -ar 44100 -f f32le`) and run `analyzeAudio` from a temporary test file.
+
+| Song (labels from Mark) | Engine | Key | Tempo | Chords |
+|---|---|---|---|---|
+| Fool In The Rain (C, 65 BPM, A = 437 Hz) | nukalhed-dsp/1, 2026-10-30 | G major, uncertain ✗ (C major second) | 100.5 BPM, uncertain, "no steady beat" ✗ (about 1.5 × 65: counting the shuffle triplets) | Main chords C, G, F, Am7 are plausible, but 394 changes in 6:13 ✗ (far too jumpy) |
+
 ## Known failures
 
-None yet.
+- Real recordings: see the table above. The shuffle feel, dense mix and real chord voicings defeat the tempo and chord stages; the correction tools exist for this, and an accuracy follow-up is planned.

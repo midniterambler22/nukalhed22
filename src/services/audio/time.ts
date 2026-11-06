@@ -34,3 +34,24 @@ export function describeTime(seconds: number): string {
 	if (s > 0 || parts.length === 0) parts.push(plural(s, 'second'));
 	return parts.join(' ');
 }
+
+/** "m:ss.s" (tenths of a second), for editing chord times. */
+export function formatPreciseTime(seconds: number): string {
+	const tenths = Number.isFinite(seconds) && seconds > 0 ? Math.round(seconds * 10) : 0;
+	const whole = Math.floor(tenths / 10);
+	return `${formatTime(whole)}.${tenths % 10}`;
+}
+
+/**
+ * Reads a time the user typed: seconds ("83.5"), "m:ss.s" ("1:23.5") or
+ * "h:mm:ss". Null when it isn't a time.
+ */
+export function parseTime(text: string): number | null {
+	const parts = text.trim().split(':');
+	if (parts.length > 3 || parts.some((p) => !/^\d+(\.\d+)?$/.test(p))) return null;
+	const numbers = parts.map(Number);
+	// Only the last part may have a fraction, and minutes and seconds after the first part stay under 60.
+	if (numbers.slice(0, -1).some((n) => !Number.isInteger(n))) return null;
+	if (numbers.slice(1).some((n) => n >= 60)) return null;
+	return numbers.reduce((total, n) => total * 60 + n, 0);
+}

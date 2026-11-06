@@ -208,3 +208,52 @@
 	display: grid;
 	gap: var(--space-2);
 }
+
+.analysis-chord-row {
+	display: flex;
+	gap: 2px;
+	align-items: stretch;
+}
+
+.analysis-chord-row .analysis-chord {
+	flex: 1;
+	min-width: 0;
+}
+
+.analysis-chord-edit {
+	min-height: 2.5rem;
+	padding-inline: var(--space-2);
+	font-size: var(--font-size-xs);
+}
+
+.analysis-chord-flags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-1);
+	justify-content: flex-end;
+}
+
+/* Flags are words; the outline only reinforces them. */
+.analysis-flag {
+	padding: 0 0.35rem;
+	font-size: var(--font-size-xs);
+	font-weight: 600;
+	color: var(--color-muted);
+	border: 1px solid var(--color-border);
+	border-radius: 1rem;
+	white-space: nowrap;
+}
+
+.analysis-flag--review {
+	color: var(--color-warning);
+	border-style: dashed;
+	border-color: currentColor;
+}
+
+.chord-review {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+	align-items: center;
+	justify-content: space-between;
+}

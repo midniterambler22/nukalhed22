@@ -8,5 +8,8 @@ export {
 	CONFIDENCE_WORDS,
 	displayChord,
 	keyHeadline,
+	keyOrTempoNeedsReview,
+	songKeyHeadline,
+	sourceWords,
 	STAGE_WORDS,
 } from './describe';

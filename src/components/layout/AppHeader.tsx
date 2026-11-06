@@ -1,4 +1,5 @@
 import type { SongAnalysis } from '../../hooks/useSongAnalysis';
+import type { SongTimeline } from '../../hooks/useSongCorrections';
 import { CONFIDENCE_WORDS } from '../analysis';
 import './layout.css';
 
@@ -6,16 +7,25 @@ export interface AppHeaderProps {
 	/** Title of the loaded song, or null. */
 	songTitle: string | null;
 	analysis: SongAnalysis;
+	/** Key and tempo with the user's corrections. */
+	timeline: SongTimeline;
 	onOpenHelp(): void;
 	onOpenSettings(): void;
 }
 
 /** Persistent header: brand, the loaded song with its key, tempo and time signature, Help and Settings. */
-export function AppHeader({ songTitle, analysis, onOpenHelp, onOpenSettings }: AppHeaderProps) {
+export function AppHeader({
+	songTitle,
+	analysis,
+	timeline,
+	onOpenHelp,
+	onOpenSettings,
+}: AppHeaderProps) {
 	const result = analysis.state.status === 'done' ? analysis.state.result : null;
 	const pending = songTitle !== null && analysis.state.status === 'analyzing';
-	const key = result?.key;
-	const tempo = result?.tempo;
+	const key = songTitle !== null ? timeline.key : null;
+	const tempo = songTitle !== null ? timeline.tempo : null;
+	const unsure = (level: string | undefined) => level !== undefined && level !== 'high';
 
 	return (
 		<header className="app-header">
@@ -31,13 +41,13 @@ export function AppHeader({ songTitle, analysis, onOpenHelp, onOpenSettings }: A
 						<dt>Key</dt>
 						<dd>
 							{key ? key.name : pending ? '…' : '—'}
-							{key && key.confidence.level !== 'high' && (
-								<span className="visually-hidden">
-									, {CONFIDENCE_WORDS[key.confidence.level]}
-								</span>
-							)}
-							{key && key.confidence.level !== 'high' && (
-								<span aria-hidden="true">?</span>
+							{key?.confidence && unsure(key.confidence.level) && (
+								<>
+									<span className="visually-hidden">
+										, {CONFIDENCE_WORDS[key.confidence.level]}
+									</span>
+									<span aria-hidden="true">?</span>
+								</>
 							)}
 						</dd>
 					</div>
@@ -53,7 +63,13 @@ export function AppHeader({ songTitle, analysis, onOpenHelp, onOpenSettings }: A
 						</dd>
 					</div>
 				</dl>
-				{result && <p className="app-song-note">Estimated on this device</p>}
+				{result && (
+					<p className="app-song-note">
+						{timeline.corrected
+							? 'Estimated, with your corrections'
+							: 'Estimated on this device'}
+					</p>
+				)}
 			</section>
 
 			<nav className="app-actions" aria-label="Application">

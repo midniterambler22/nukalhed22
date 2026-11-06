@@ -4,6 +4,8 @@ Tracks milestones, tasks, dependencies, and progress. Update this file as work c
 
 **Status (2026-10-29):** Phase 1 is done except Playwright/axe-core in the repo. Phase 2 has started: the SVG fretboard shows any key, scale and chord with keyboard navigation, and pentatonic scales can be shown as any mix of the five shapes (just 1, 1–2, 1–2–3, all 5, or a custom set). Phase 3 is done: a local song can be chosen or dropped, played, paused, seeked and decoded in the browser for analysis. Phase 4 is done for synthetic reference songs: key, tempo, beats and chords are estimated on the device with confidence; accuracy on real recordings hasn't been measured yet.
 
+**Phase 5 (2026-10-30):** the chord timeline can be corrected: chord names and timings, adding and removing changes, key and tempo, "Needs review" on anything less than likely, and looping a chord or a run of chords. Corrections are a separate layer, saved in the browser, and survive re-running analysis. **Scale library (2026-11-06):** the 20 scales of UI_SPEC §6 are in. **Next:** boxes for non-pentatonic scales and recommendations, then analysis accuracy on real recordings (Fool In The Rain baseline in TESTING.md).
+
 **UI spec (2026-10-29):** Mark's [UI_SPEC.md](UI_SPEC.md) Phase 1 (UI foundation) is done: studio design tokens, header, responsive multi-panel workspace, waveform and chord timeline, and the Scale Viewer tab. The spec's phase list differs from this plan (it has 20 scales, YouTube in its Phase 4, Build My Solo in Phase 6); this plan hasn't been reordered until Mark decides.
 
 **Build order:** This plan follows SOP §21. Mark decided on 2026-10-29 that automated key, tempo and chord analysis comes before the chord timeline and practice features (instead of the manual-chords-first order in PROJECT_INSTRUCTIONS §15). Manual chord editing still exists, as the correction layer on top of analysis results.
@@ -79,7 +81,7 @@ Goal: estimate key, tempo, and chords from audio, with honest confidence. (SOP �
 - [x] Chord recognition with timestamps (major, minor, 7, m7)
 - [x] Confidence display; uncertain results labelled as estimates
 - [x] Clear states for analysis in progress, failed, and low confidence
-- [ ] Measure accuracy on real recordings with known chords (needs songs we're allowed to use, with reference chord charts)
+- [~] Measure accuracy on real recordings with known chords. First real song measured (Mark's copy of Fool In The Rain, 2026-10-30): key, tempo and chord changes all off; see TESTING.md. Follow-up: shuffle/triplet tempo, steadier chords, tuning detection
 - [ ] Check analysis in Safari and Firefox (only Chromium checked so far)
 
 **Done when:** a loaded song shows an estimated key, tempo and chord list with confidence, and failures say what happened and what to do next.
@@ -90,11 +92,20 @@ Goal: a synchronized, correctable chord timeline. (SOP §9, SOP §21 step 7)
 
 - [x] Chord timeline display; current and upcoming chord
 - [x] Active chord driven by the audio element's playback time; correct after seeking
-- [ ] Edit chord labels and timings; add and remove chords
-- [ ] Corrections stored separately from automatic results
-- [ ] Manual entry for songs where analysis fails
+- [x] Edit chord labels and timings; add and remove chords
+- [x] Corrections stored separately from automatic results (time-based spans over the estimate; saved in this browser per file)
+- [x] Manual entry for songs where analysis fails
+- [x] Correct the key and tempo (with ×½, ×⅔ for shuffles, ×2)
+- [x] "Needs review" on chords, key and tempo that are less than likely, cleared by checking or correcting them
+- [x] Loop a chord or a run of chords from the playback bar or the chord editor, driven by the audio clock
+- [ ] Snap edited times to beats; drag chord boundaries on the timeline
 
 **Done when:** the current chord stays correct through play, pause and seek, and a user's corrections survive re-running analysis.
+
+## Next — Scale library (UI_SPEC §6)
+
+- [x] All 20 scales in four groups (pentatonic and blues; major and modes; minor and harmonic variations; advanced and exotic), as interval formulas, on all 12 roots
+- [ ] Boxes (connected positions) for scales that aren't five-note; today they show every note in the chosen register
 
 ## Phase 6 — Recommendations and guided practice
 
@@ -103,7 +114,7 @@ Goal: practice over a song with chord-aware guidance. (SOP §10, §11 and §13; 
 - [ ] Recommended scale, starting fret, and target notes, with plain-language reasons
 - [ ] Highlight chord tones over the scale as the chord changes
 - [ ] Synchronized workspace: one timeline drives chords, recommendation and fretboard
-- [ ] Section looping and playback-speed control
+- [ ] Section looping (chord loops done in Phase 5; song sections need section detection) and playback-speed control
 - [ ] Contextual explanations ("Learn Why")
 - [ ] Save and reload a practice session locally
 

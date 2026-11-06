@@ -1,21 +1,20 @@
 import type { LocalSong } from '../../hooks/useLocalSong';
 import { usePlaybackChord } from '../../hooks/usePlaybackChord';
 import type { SongAnalysis } from '../../hooks/useSongAnalysis';
-import type { ChordEvent } from '../../services/analysis';
+import type { TimelineChord } from '../../services/corrections';
 import { formatTime } from '../../services/audio';
-import { CONFIDENCE_WORDS, displayChord } from '../analysis';
+import { displayChord, sourceWords } from '../analysis';
 import './timeline.css';
-
-const NO_CHORDS: readonly ChordEvent[] = [];
 
 export interface NowPlayingProps {
 	song: LocalSong;
 	analysis: SongAnalysis;
+	/** The chords with the user's corrections. */
+	chords: readonly TimelineChord[];
 }
 
 /** The chord playing now and the next change, large enough to read while playing. */
-export function NowPlaying({ song, analysis }: NowPlayingProps) {
-	const chords = analysis.state.status === 'done' ? analysis.state.result.chords : NO_CHORDS;
+export function NowPlaying({ song, analysis, chords }: NowPlayingProps) {
 	const { current, next } = usePlaybackChord(song.controller, chords);
 	const now = chords[current];
 	const upcoming = chords[next];
@@ -36,9 +35,8 @@ export function NowPlaying({ song, analysis }: NowPlayingProps) {
 						<span className="now-playing-chord">
 							{now?.chord ? displayChord(now.chord) : '—'}
 						</span>
-						{now?.chord && (
-							<span className="tag">{CONFIDENCE_WORDS[now.confidence.level]}</span>
-						)}
+						{now?.chord && <span className="tag">{sourceWords(now)}</span>}
+						{now?.needsReview && <span className="muted">needs review</span>}
 					</p>
 					<p className="now-playing-slot">
 						<span className="now-playing-label">Next</span>

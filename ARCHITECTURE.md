@@ -15,7 +15,8 @@ A browser-based app built with React + TypeScript + Vite. Audio is processed loc
 | Music theory | `src/services/music-theory` | Pitch classes, intervals, scales, chords, transposition | none |
 | Fretboard engine | `src/services/fretboard` | Instrument model (tuning, capo, strings), note↔position mapping, scale positions, register selection | music theory |
 | Audio service | `src/services/audio` | Load, play, pause, seek, loop, speed; exposes playback time | browser audio APIs |
-| Progression timing | `src/services/progression` | Which chord is playing at a time, next/previous change, time markers (corrections layer still to come) | none (times come from the audio element) |
+| Progression timing | `src/services/progression` | Which chord is playing at a time, next/previous change, time markers, loop ranges | none (times come from the audio element) |
+| Corrections | `src/services/corrections` | The user's key, tempo and chord corrections as a separate layer; merging it over the analysis; saving it locally | analysis types, music theory, progression |
 | Demo song | `src/services/demo` | Synthesizes songs from a score (tests and the in-app demo) and encodes WAV | music theory |
 | Analysis service | `src/services/analysis` | Key, tempo, beat and chord estimates behind a replaceable interface | music theory, audio data |
 | Practice / persistence | `src/services/state` | Saved sessions, preferences (local storage first) | timeline, fretboard |
@@ -94,6 +95,15 @@ A browser-based app built with React + TypeScript + Vite. Audio is processed loc
 - **Errors.** `AnalysisError` with codes `too-short` (< 5 s), `silent`, `failed` and `cancelled`; each message says what to do next. A result for noise says it's very uncertain instead of failing.
 - **Limits.** Assumes A = 440 Hz; names only major, minor, 7 and m7 (others show as the nearest); no time signature, sections or slash chords; tested only on synthetic audio so far.
 
+## Corrections layer (plan Phase 5)
+
+`src/services/corrections`, imported through `index.ts`. The analysis result is never changed. `SongCorrections` holds `key`, `bpm` (null for "use the estimate") and `chords`: sorted, non-overlapping `ChordSpan`s (start, end, chord or null) that override whatever the analysis heard under them.
+
+- **Every chord edit is a paint.** Rename = paint the chord's range; confirm = paint it with the same chord; retime = paint the new range and hand what it gave up to the neighbour; remove = paint it with the neighbour's chord; add = paint from the time to the next change; undo = clear the spans in its range. Edits are tied to times, not list positions, so they survive the analysis running again with slightly different boundaries.
+- **`mergeChords(auto, spans)`** builds the `TimelineChord[]` the UI uses: the estimate cut around the user's spans, with touching pieces of the same chord joined. Each chord carries `edited`, the lowest automatic `confidence` (null when the user set all of it) and `needsReview` (an automatic part below "likely").
+- **`useSongCorrections`** keys corrections by file name and size, keeps them in React state and saves them to `localStorage` (`nukalhed22.corrections.v1:*`). Saved data is validated on load (bad chords, overlaps, out-of-range keys and tempos are dropped). If storage is blocked, corrections last for the page and Song Info says so.
+- **Loops** are a time range held in `App`; `useLoop` watches the audio element's time each frame while playing and seeks to the start when playback passes the end from inside the loop (`loopJumpTarget`), so a seek elsewhere isn't pulled back. Loop ends stop 0.1 s short of the song's end so the element never reaches "ended".
+
 ## Core data types (planned)
 
 - `PitchClass` (0–11), `Note` (pitch class + octave + spelling)
@@ -121,4 +131,5 @@ Timestamps are in seconds (floating point) everywhere.
 | 2026-10-29 | 200 MB file limit; analysis decode limited to 20 minutes, mono 44.1 kHz | Keeps the in-browser decode within memory on ordinary laptops and phones; 44.1 kHz is what Essentia.js expects |
 | 2026-10-29 | Studio theme is dark-only for now | UI_SPEC §2 asks for a deep navy workstation; all colours are tokens in `global.css`, so a light theme can be added later |
 | 2026-10-29 | Workspace tabs follow the spec's reference image (Jam Master, Riff Builder, Chord Viewer, Scale Viewer, Song Info); the workspace itself is "Song Analysis" | The spec lists six work areas but its reference shows the analysis as the page around the tabs; this avoids a tab that duplicates the left panel |
+| 2026-10-30 | Chord corrections as time-based spans over the estimate, saved in localStorage per file name and size | Spans keep the user's work apart from the analysis and survive re-analysis; storing them per file needs no account or upload. Phase 6 "save a practice session" can build on the same records |
 | 2026-10-29 | Own analysis DSP instead of Essentia.js | Essentia.js is AGPL-3.0 (would bind the app's licence), ~10 MB of WASM, and unpublished since 2022. Meyda (MIT) only extracts features. The classic methods needed (chroma, onset autocorrelation + DP beats, key profiles, chord templates + Viterbi) are ~900 lines, testable, and run in a worker on any browser. Revisit a model-based chord recognizer if real-recording accuracy is poor |

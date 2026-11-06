@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, within } from '@testing-librar
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { AnalysisAudioState } from '../../hooks/useLocalSong';
 import { useSongAnalysis } from '../../hooks/useSongAnalysis';
+import { useSongCorrections } from '../../hooks/useSongCorrections';
 import type { DecodedAudio } from '../../services/audio';
 import {
 	AnalysisError,
@@ -105,13 +106,14 @@ function Harness({
 	onSeek?: (t: number) => void;
 }) {
 	const analysis = useSongAnalysis(audio, engine);
+	const timeline = useSongCorrections(null, analysis, null);
 	return (
 		<>
 			<section aria-label="key">
 				<KeyTempoPanel audio={audio} analysis={analysis} />
 			</section>
 			<section aria-label="chords">
-				<ChordList analysis={analysis} onSeek={onSeek} />
+				<ChordList analysis={analysis} timeline={timeline} onSeek={onSeek} />
 			</section>
 		</>
 	);
@@ -161,10 +163,10 @@ describe('analysis panels', () => {
 		expect(buttons.map((b) => b.getAttribute('aria-label'))).toEqual([
 			'0 seconds: No chord',
 			'2 seconds: Am, likely, function i',
-			'10 seconds: F♯m, possible, or C or Em, function vi',
-			'14 seconds: B♭7, uncertain, or C or Em, function ♭II',
+			'10 seconds: F♯m, possible, or C or Em, function vi, needs review',
+			'14 seconds: B♭7, uncertain, or C or Em, function ♭II, needs review',
 		]);
-		expect(buttons[3]?.textContent).toBe('0:14B♭7?♭II');
+		expect(buttons[3]?.textContent).toBe('0:14B♭7?♭IINeeds review');
 		fireEvent.click(buttons[2] as HTMLElement);
 		expect(onSeek).toHaveBeenCalledWith(10);
 		expect(screen.getByText(/Main chords/).parentElement?.textContent).toMatch(
@@ -215,7 +217,7 @@ describe('analysis panels', () => {
 		await act(async () => jobs[0]?.resolve(result({ key: null, tempo: null, chords: [] })));
 		expect(screen.getByText('Not found')).toBeTruthy();
 		expect(screen.getByText('No steady beat')).toBeTruthy();
-		expect(screen.getByText('No chords were recognized in this song.')).toBeTruthy();
+		expect(screen.getByText(/No chords were recognized in this song/)).toBeTruthy();
 	});
 
 	it('shows a failure with a next step, and can try again', async () => {
@@ -274,7 +276,15 @@ describe('describe helpers', () => {
 		const audio = audioState();
 		function Now() {
 			const analysis = useSongAnalysis(audio, engine);
-			return <ChordList analysis={analysis} onSeek={() => {}} currentIndex={1} />;
+			const timeline = useSongCorrections(null, analysis, null);
+			return (
+				<ChordList
+					analysis={analysis}
+					timeline={timeline}
+					onSeek={() => {}}
+					currentIndex={1}
+				/>
+			);
 		}
 		render(<Now />);
 		const base = result();

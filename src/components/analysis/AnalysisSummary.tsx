@@ -1,17 +1,22 @@
 import type { SongAnalysis } from '../../hooks/useSongAnalysis';
-import { CONFIDENCE_WORDS, keyHeadline, STAGE_WORDS } from './describe';
+import type { SongTimeline } from '../../hooks/useSongCorrections';
+import { keyOrTempoNeedsReview, songKeyHeadline, sourceWords, STAGE_WORDS } from './describe';
 import './analysis.css';
 
 export interface AnalysisSummaryProps {
 	analysis: SongAnalysis;
 	hasSong: boolean;
+	/** The key and tempo with the user's corrections. */
+	timeline: SongTimeline;
+	/** Opens the key and tempo correction. */
+	onCorrect(): void;
 }
 
 /**
  * The analysis at a glance: key, tempo, time signature, tuning and structure. Items
  * the engine can't estimate yet say so instead of showing a guess.
  */
-export function AnalysisSummary({ analysis, hasSong }: AnalysisSummaryProps) {
+export function AnalysisSummary({ analysis, hasSong, timeline, onCorrect }: AnalysisSummaryProps) {
 	const { state } = analysis;
 	if (state.status === 'analyzing') {
 		const percent = Math.round(state.progress.fraction * 100);
@@ -42,37 +47,60 @@ export function AnalysisSummary({ analysis, hasSong }: AnalysisSummaryProps) {
 			</p>
 		);
 	}
-	const { key, tempo } = state.result;
+	const { key, tempo } = timeline;
+	const review = keyOrTempoNeedsReview(key) || keyOrTempoNeedsReview(tempo);
 	return (
-		<dl className="analysis-summary">
-			<div>
-				<dt>Key</dt>
-				<dd>
-					{key ? keyHeadline(key) : 'Not found'}
-					{key && <span className="tag">{CONFIDENCE_WORDS[key.confidence.level]}</span>}
-				</dd>
+		<div className="analysis">
+			<dl className="analysis-summary">
+				<div>
+					<dt>Key</dt>
+					<dd>
+						{key ? songKeyHeadline(key) : 'Not found'}
+						{key && <span className="tag">{sourceWords(key)}</span>}
+						{keyOrTempoNeedsReview(key) && (
+							<span className="analysis-flag analysis-flag--review">
+								Needs review
+							</span>
+						)}
+					</dd>
+				</div>
+				<div>
+					<dt>Tempo</dt>
+					<dd>
+						{tempo ? `${Math.round(tempo.bpm)} BPM` : 'No steady beat'}
+						{tempo && <span className="tag">{sourceWords(tempo)}</span>}
+						{keyOrTempoNeedsReview(tempo) && (
+							<span className="analysis-flag analysis-flag--review">
+								Needs review
+							</span>
+						)}
+					</dd>
+				</div>
+				<div>
+					<dt>Time signature</dt>
+					<dd className="analysis-muted">Not estimated yet</dd>
+				</div>
+				<div>
+					<dt>Tuning</dt>
+					<dd className="analysis-muted">Not detected</dd>
+				</div>
+				<div>
+					<dt>Structure</dt>
+					<dd className="analysis-muted">Sections not detected yet</dd>
+				</div>
+			</dl>
+			<div className="chord-review">
+				<p className="analysis-muted">
+					{review
+						? 'The analysis wasn’t sure. Check by ear and correct it.'
+						: timeline.corrected
+							? 'Includes your corrections.'
+							: 'Estimated on this device.'}
+				</p>
+				<button type="button" className="btn" onClick={onCorrect}>
+					Correct key or tempo
+				</button>
 			</div>
-			<div>
-				<dt>Tempo</dt>
-				<dd>
-					{tempo ? `${Math.round(tempo.bpm)} BPM` : 'No steady beat'}
-					{tempo && (
-						<span className="tag">{CONFIDENCE_WORDS[tempo.confidence.level]}</span>
-					)}
-				</dd>
-			</div>
-			<div>
-				<dt>Time signature</dt>
-				<dd className="analysis-muted">Not estimated yet</dd>
-			</div>
-			<div>
-				<dt>Tuning</dt>
-				<dd className="analysis-muted">Not detected</dd>
-			</div>
-			<div>
-				<dt>Structure</dt>
-				<dd className="analysis-muted">Sections not detected yet</dd>
-			</div>
-		</dl>
+		</div>
 	);
 }

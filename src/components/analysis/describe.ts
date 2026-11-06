@@ -1,9 +1,6 @@
-import type {
-	AnalysisStage,
-	ChordEvent,
-	ConfidenceLevel,
-	KeyEstimate,
-} from '../../services/analysis';
+import type { AnalysisStage, ConfidenceLevel, KeyEstimate } from '../../services/analysis';
+import type { SongKey, SongTempo, TimelineChord } from '../../services/corrections';
+import type { TimedChord } from '../../services/progression';
 
 /** Confidence in words, so it never depends on colour or a number alone. */
 export const CONFIDENCE_WORDS: Readonly<Record<ConfidenceLevel, string>> = {
@@ -26,6 +23,23 @@ export function keyHeadline(key: KeyEstimate): string {
 	return `Unclear, maybe ${key.name}`;
 }
 
+/** The key as a headline: the user's key as it is, an estimate with how sure it is. */
+export function songKeyHeadline(key: SongKey): string {
+	if (key.source === 'user' || !key.estimate) return key.name;
+	return keyHeadline(key.estimate);
+}
+
+/** "Set by you", or the estimate's confidence in words. */
+export function sourceWords(item: SongKey | SongTempo | TimelineChord): string {
+	if (!item.confidence) return 'set by you';
+	return CONFIDENCE_WORDS[item.confidence.level];
+}
+
+/** An estimate the user should check: anything less than likely they haven't corrected. */
+export function keyOrTempoNeedsReview(item: SongKey | SongTempo | null): boolean {
+	return item !== null && item.confidence !== null && item.confidence.level !== 'high';
+}
+
 export interface ChordShare {
 	chord: string;
 	/** Share of the time with any chord, 0–1. */
@@ -33,7 +47,7 @@ export interface ChordShare {
 }
 
 /** Chords ordered by how much of the song they cover; stretches with no chord are left out. */
-export function chordShares(events: readonly ChordEvent[]): ChordShare[] {
+export function chordShares(events: readonly TimedChord[]): ChordShare[] {
 	const totals = new Map<string, number>();
 	let total = 0;
 	for (const event of events) {
@@ -59,6 +73,6 @@ export const CHORD_COLOR_COUNT = 6;
  * A colour slot per chord symbol, most-played chord first, so the timeline and the
  * chord list colour each chord the same way. Colour only reinforces the written name.
  */
-export function chordColorSlots(events: readonly ChordEvent[]): Map<string, number> {
+export function chordColorSlots(events: readonly TimedChord[]): Map<string, number> {
 	return new Map(chordShares(events).map((s, i) => [s.chord, i % CHORD_COLOR_COUNT]));
 }
