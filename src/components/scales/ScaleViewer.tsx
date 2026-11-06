@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import type { RegisterChoice, ScaleViewerState } from '../../hooks/useScaleViewer';
-import { ALL_BOXES } from '../../hooks/useScaleViewer';
+import { ALL_BOXES, KEY_NAMES } from '../../hooks/useScaleViewer';
 import {
 	formatPitch,
 	midiToPitch,
@@ -10,9 +10,9 @@ import {
 } from '../../services/music-theory';
 import { Fretboard, FretboardLegend } from '../fretboard';
 import { roleWords, shapeWords } from '../fretboard/describe';
+import { StylePanel } from './StylePanel';
 import './scales.css';
 
-const KEY_NAMES = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 const KEY_LABELS: Readonly<Record<string, string>> = Object.fromEntries(
 	KEY_NAMES.map((name) => [name, name.replace('#', '♯').replace('b', '♭')]),
 );
@@ -190,6 +190,8 @@ export function ScaleViewer({ viewer }: ScaleViewerProps) {
 					</div>
 				</fieldset>
 			</div>
+
+			<StylePanel viewer={viewer} />
 
 			{hasBoxes && boxes.length === 0 && (
 				<p className="muted" role="status">

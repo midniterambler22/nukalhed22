@@ -17,6 +17,7 @@ A browser-based app built with React + TypeScript + Vite. Audio is processed loc
 | Audio service | `src/services/audio` | Load, play, pause, seek, loop, speed; exposes playback time | browser audio APIs |
 | Progression timing | `src/services/progression` | Which chord is playing at a time, next/previous change, time markers, loop ranges | none (times come from the audio element) |
 | Corrections | `src/services/corrections` | The user's key, tempo and chord corrections as a separate layer; merging it over the analysis; saving it locally | analysis types, music theory, progression |
+| Recommendation | `src/services/recommendation` | Blues style profiles as data and `recommendForStyle`: scale choices over a chord, register, notes to land on, reasons | music theory |
 | Demo song | `src/services/demo` | Synthesizes songs from a score (tests and the in-app demo) and encodes WAV | music theory |
 | Analysis service | `src/services/analysis` | Key, tempo, beat and chord estimates behind a replaceable interface | music theory, audio data |
 | Practice / persistence | `src/services/state` | Saved sessions, preferences (local storage first) | timeline, fretboard |

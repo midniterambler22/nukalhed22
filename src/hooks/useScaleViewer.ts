@@ -33,6 +33,37 @@ import {
 	type PitchClass,
 	type ScaleId,
 } from '../services/music-theory';
+import {
+	recommendForStyle,
+	type ScaleRecommendation,
+	type StyleId,
+	type StyleRecommendation,
+} from '../services/recommendation';
+
+/** Key names the key pickers offer, in order. */
+export const KEY_NAMES = [
+	'C',
+	'C#',
+	'Db',
+	'D',
+	'Eb',
+	'E',
+	'F',
+	'F#',
+	'Gb',
+	'G',
+	'Ab',
+	'A',
+	'Bb',
+	'B',
+];
+
+/** The picker's name for a root, swapping an enharmonic spelling the picker lacks (D♯ → Eb). */
+function keyNameFor(root: string): string {
+	if (KEY_NAMES.includes(root)) return root;
+	const pitchClass = noteToPitchClass(parseNoteName(root));
+	return KEY_NAMES.find((name) => noteToPitchClass(parseNoteName(name)) === pitchClass) ?? root;
+}
 
 /** Instrument settings, chosen in Settings and shared by every view of the neck. */
 export interface InstrumentSettings {
@@ -65,6 +96,16 @@ export interface ScaleViewerState {
 	setKeyName(name: string): void;
 	scaleId: ScaleId;
 	setScaleId(id: ScaleId): void;
+	/** The blues style chosen for recommendations, or null for none. */
+	styleId: StyleId | null;
+	setStyleId(id: StyleId | null): void;
+	/** The song's key for recommendations, separate from the scale's root. */
+	songKey: string;
+	setSongKey(key: string): void;
+	/** What the chosen style tends to play over the chord, or null without a style or a valid chord. */
+	recommendation: StyleRecommendation | null;
+	/** Shows a recommended option on the neck: its scale, root and register. */
+	applyOption(option: ScaleRecommendation): void;
 	chordText: string;
 	setChordText(text: string): void;
 	register: RegisterChoice;
@@ -115,6 +156,8 @@ export interface ScaleViewerState {
 export function useScaleViewer(settings: InstrumentSettings): ScaleViewerState {
 	const [keyName, setKeyName] = useState('A');
 	const [scaleId, setScaleId] = useState<ScaleId>('minor-pentatonic');
+	const [styleId, setStyleId] = useState<StyleId | null>(null);
+	const [songKey, setSongKey] = useState('A');
 	const [chordText, setChordText] = useState('A7');
 	const [register, setRegister] = useState<RegisterChoice>('all');
 	const [boxes, setBoxesState] = useState<readonly number[]>(ALL_BOXES);
@@ -188,6 +231,19 @@ export function useScaleViewer(settings: InstrumentSettings): ScaleViewerState {
 
 	const boxPlan = useMemo(() => scaleBoxPlan(scaleId), [scaleId]);
 	const hasBoxes = boxPlan !== undefined;
+
+	const recommendation = useMemo(
+		() =>
+			styleId !== null && chord !== '' && isChordSymbol(chord)
+				? recommendForStyle(styleId, songKey, chord)
+				: null,
+		[styleId, songKey, chord],
+	);
+	const applyOption = useCallback((option: ScaleRecommendation) => {
+		setScaleId(option.scale);
+		setKeyName(keyNameFor(option.rootKey));
+		setRegister(option.register);
+	}, []);
 	const allPositions = useMemo(() => {
 		if (!instrumentResult.ok || !boxPlan) return [];
 		return getScalePositions(
@@ -263,6 +319,12 @@ export function useScaleViewer(settings: InstrumentSettings): ScaleViewerState {
 		setKeyName,
 		scaleId,
 		setScaleId,
+		styleId,
+		setStyleId,
+		songKey,
+		setSongKey,
+		recommendation,
+		applyOption,
 		chordText,
 		setChordText,
 		register,

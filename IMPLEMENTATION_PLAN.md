@@ -112,7 +112,8 @@ Goal: a synchronized, correctable chord timeline. (SOP §9, SOP §21 step 7)
 
 Goal: practice over a song with chord-aware guidance. (SOP §10, §11 and §13; SOP §21 steps 8–10)
 
-- [ ] Recommended scale, starting fret, and target notes, with plain-language reasons
+- [x] Blues style profiles (B.B. King, Eric Clapton, Stevie Ray Vaughan, Duane Allman, Muddy Waters, Joe Bonamassa): scale choices over the current chord with register, notes to land on, and plain-language reasons (`src/services/recommendation`; playing tendencies, not licks)
+- [ ] Recommendations that follow the song's chords automatically, starting fret and box choice, and non-blues styles
 - [ ] Highlight chord tones over the scale as the chord changes
 - [ ] Synchronized workspace: one timeline drives chords, recommendation and fretboard
 - [ ] Section looping (chord loops done in Phase 5; song sections need section detection) and playback-speed control
