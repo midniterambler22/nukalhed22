@@ -11,6 +11,8 @@ Significant changes and releases.
 
 ### Added
 
+- Blues style profiles (`src/services/recommendation`): pick B.B. King, Eric Clapton, Stevie Ray Vaughan, Duane Allman, Muddy Waters or Joe Bonamassa in the Scale Viewer and see what that style tends to reach for over the current chord: the scale (built on the song's key or on the chord), the register, notes to land on, and a plain-language reason, with a button that puts it on the neck. They are playing tendencies, not transcriptions. Styles are data (`styles.ts`); `recommendForStyle` works out notes from the theory module.
+
 - Blues boxes: Minor blues and Major blues now show Box 1–5, built from the pentatonic's five boxes with the blue note (♭5 or ♭3) added wherever it falls inside a box. `scaleBoxPlan` (theory) says how a scale is boxed; `getScalePositions` takes the added notes, and each note says whether it was added (`isAdded`).
 
 - CI (`.github/workflows/ci.yml`): pull requests and pushes to main run type check, lint, format check, tests and the production build on Node 22.

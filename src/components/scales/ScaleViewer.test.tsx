@@ -67,6 +67,41 @@ describe('ScaleViewer', () => {
 		).toBeTruthy();
 	});
 
+	it('offers six blues styles and shows what each tends to play over the chord', () => {
+		render(<Harness />);
+		const style = screen.getByLabelText('Style') as HTMLSelectElement;
+		expect([...style.options].map((o) => o.text)).toEqual([
+			'None',
+			'B.B. King',
+			'Eric Clapton',
+			'Stevie Ray Vaughan',
+			'Duane Allman',
+			'Muddy Waters',
+			'Joe Bonamassa',
+		]);
+		expect(screen.queryByText('Notes to land on:')).toBeNull();
+		fireEvent.change(style, { target: { value: 'bb-king' } });
+		fireEvent.change(screen.getByLabelText('Chord to play over'), { target: { value: 'D7' } });
+		expect(screen.getByText(/the IV chord in A/)).toBeTruthy();
+		expect(screen.getByText(/not copies of anyone’s licks/)).toBeTruthy();
+		expect(screen.getByText('Notes to land on:')).toBeTruthy();
+		fireEvent.click(screen.getByRole('button', { name: 'Show D major pentatonic' }));
+		expect((screen.getByLabelText('Scale') as HTMLSelectElement).value).toBe(
+			'major-pentatonic',
+		);
+		expect((screen.getByLabelText('Key') as HTMLSelectElement).value).toBe('D');
+		expect(screen.getByRole('button', { name: 'High' }).getAttribute('aria-pressed')).toBe(
+			'true',
+		);
+	});
+
+	it('asks for a valid chord before recommending', () => {
+		render(<Harness />);
+		fireEvent.change(screen.getByLabelText('Style'), { target: { value: 'srv' } });
+		fireEvent.change(screen.getByLabelText('Chord to play over'), { target: { value: 'Hm7' } });
+		expect(screen.getByText('Enter a valid chord to play over to see choices.')).toBeTruthy();
+	});
+
 	it('spells notes from the chosen key (B♭ in F major, not A♯)', () => {
 		render(<Harness />);
 		fireEvent.change(screen.getByLabelText('Key'), { target: { value: 'F' } });
