@@ -63,6 +63,22 @@ describe('ScaleViewer', () => {
 		).toBeTruthy();
 	});
 
+	it('offers all 20 scales in four groups and shows the notes of an exotic one', () => {
+		const { container } = render(<Harness />);
+		const groups = [...container.querySelectorAll('optgroup')];
+		expect(groups.map((g) => g.label)).toEqual([
+			'Pentatonic and blues',
+			'Major scale and modes',
+			'Minor and harmonic variations',
+			'Advanced and exotic',
+		]);
+		expect(container.querySelectorAll('optgroup option')).toHaveLength(20);
+		fireEvent.change(screen.getByLabelText('Key'), { target: { value: 'C' } });
+		fireEvent.change(screen.getByLabelText('Scale'), { target: { value: 'whole-tone' } });
+		expect(container.querySelector('.scale-viewer-title')?.textContent).toBe('C Whole tone');
+		expect(screen.getByText('C D E F♯ G♯ B♭')).toBeTruthy();
+	});
+
 	it('explains an invalid chord and hides chord tones until fixed', () => {
 		render(<Harness />);
 		const chord = screen.getByLabelText('Chord to play over');

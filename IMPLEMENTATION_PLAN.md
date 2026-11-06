@@ -4,7 +4,7 @@ Tracks milestones, tasks, dependencies, and progress. Update this file as work c
 
 **Status (2026-10-29):** Phase 1 is done except Playwright/axe-core in the repo. Phase 2 has started: the SVG fretboard shows any key, scale and chord with keyboard navigation, and pentatonic scales can be shown as any mix of the five shapes (just 1, 1–2, 1–2–3, all 5, or a custom set). Phase 3 is done: a local song can be chosen or dropped, played, paused, seeked and decoded in the browser for analysis. Phase 4 is done for synthetic reference songs: key, tempo, beats and chords are estimated on the device with confidence; accuracy on real recordings hasn't been measured yet.
 
-**Phase 5 (2026-10-30):** the chord timeline can be corrected: chord names and timings, adding and removing changes, key and tempo, "Needs review" on anything less than likely, and looping a chord or a run of chords. Corrections are a separate layer, saved in the browser, and survive re-running analysis. **Next: the 20-scale library from UI_SPEC.md §6**, then analysis accuracy on real recordings (Fool In The Rain baseline in TESTING.md).
+**Phase 5 (2026-10-30):** the chord timeline can be corrected: chord names and timings, adding and removing changes, key and tempo, "Needs review" on anything less than likely, and looping a chord or a run of chords. Corrections are a separate layer, saved in the browser, and survive re-running analysis. **Scale library (2026-11-06):** the 20 scales of UI_SPEC §6 are in. **Next:** boxes for non-pentatonic scales and recommendations, then analysis accuracy on real recordings (Fool In The Rain baseline in TESTING.md).
 
 **UI spec (2026-10-29):** Mark's [UI_SPEC.md](UI_SPEC.md) Phase 1 (UI foundation) is done: studio design tokens, header, responsive multi-panel workspace, waveform and chord timeline, and the Scale Viewer tab. The spec's phase list differs from this plan (it has 20 scales, YouTube in its Phase 4, Build My Solo in Phase 6); this plan hasn't been reordered until Mark decides.
 
@@ -104,7 +104,8 @@ Goal: a synchronized, correctable chord timeline. (SOP §9, SOP §21 step 7)
 
 ## Next — Scale library (UI_SPEC §6)
 
-- [ ] All 20 scales in four groups (pentatonic and blues; major and modes; minor and harmonic variations; advanced and exotic), as interval formulas, on all 12 roots
+- [x] All 20 scales in four groups (pentatonic and blues; major and modes; minor and harmonic variations; advanced and exotic), as interval formulas, on all 12 roots
+- [ ] Boxes (connected positions) for scales that aren't five-note; today they show every note in the chosen register
 
 ## Phase 6 — Recommendations and guided practice
 
