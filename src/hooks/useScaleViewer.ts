@@ -25,6 +25,7 @@ import {
 	noteToPitchClass,
 	parseNoteName,
 	SCALES,
+	scaleBoxPlan,
 	spellPitchClassInContext,
 	spellScale,
 	type ChordToneInScale,
@@ -185,12 +186,17 @@ export function useScaleViewer(settings: InstrumentSettings): ScaleViewerState {
 		[chord],
 	);
 
-	const hasBoxes = scaleNotes.length === POSITION_COUNT;
+	const boxPlan = useMemo(() => scaleBoxPlan(scaleId), [scaleId]);
+	const hasBoxes = boxPlan !== undefined;
 	const allPositions = useMemo(() => {
-		if (!instrumentResult.ok || !hasBoxes) return [];
-		const intervals = getScale(scaleId).intervals.map((i) => i.semitones % 12);
-		return getScalePositions(instrumentResult.instrument, rootPitchClass, intervals);
-	}, [instrumentResult, hasBoxes, scaleId, rootPitchClass]);
+		if (!instrumentResult.ok || !boxPlan) return [];
+		return getScalePositions(
+			instrumentResult.instrument,
+			rootPitchClass,
+			boxPlan.core,
+			boxPlan.added,
+		);
+	}, [instrumentResult, boxPlan, rootPitchClass]);
 
 	const shownPositions = useMemo(() => {
 		if (!instrumentResult.ok || !hasBoxes) return undefined;

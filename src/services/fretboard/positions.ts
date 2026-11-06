@@ -26,6 +26,8 @@ export interface PositionNote extends FretPosition {
 	/** Semitones above the scale root, 0–11. */
 	interval: number;
 	isRoot: boolean;
+	/** True for a note added to the box on top of its pentatonic core, such as the blue note. */
+	isAdded: boolean;
 }
 
 export interface ScalePosition {
@@ -96,10 +98,35 @@ function toPositionNote(
 	string: number,
 	fret: number,
 	root: number,
+	isAdded = false,
 ): PositionNote {
 	const position = positionAt(instrument, string, fret);
 	const interval = mod12(position.pitchClass - root);
-	return { ...position, interval, isRoot: interval === 0 };
+	return { ...position, interval, isRoot: interval === 0, isAdded };
+}
+
+/**
+ * Notes of the extra intervals (e.g. the blue note) that sit inside the box's fret span,
+ * on every string. They never widen the box.
+ */
+function addedNotes(
+	instrument: Instrument,
+	strings: readonly number[],
+	root: number,
+	extraIntervals: readonly number[],
+	fretRange: FretRange,
+): PositionNote[] {
+	const added: PositionNote[] = [];
+	for (const string of strings) {
+		for (let fret = fretRange.min; fret <= fretRange.max; fret++) {
+			if (!isPlayable(instrument, string, fret)) continue;
+			const interval = mod12(positionAt(instrument, string, fret).pitchClass - root);
+			if (extraIntervals.includes(interval)) {
+				added.push(toPositionNote(instrument, string, fret, root, true));
+			}
+		}
+	}
+	return added;
 }
 
 /**
@@ -113,6 +140,7 @@ function buildPosition(
 	intervals: readonly number[],
 	number: number,
 	startFret: number,
+	extraIntervals: readonly number[],
 ): ScalePosition | null {
 	const startString = strings[0];
 	if (startString === undefined) {
@@ -140,13 +168,17 @@ function buildPosition(
 	if (fretRange.max - fretRange.min > MAX_POSITION_SPAN) {
 		return null;
 	}
+	const allNotes = [...notes, ...addedNotes(instrument, strings, root, extraIntervals, fretRange)]
+		.map((note) => ({ note, midi: openMidiForString(instrument, note.string) + note.fret }))
+		.sort((a, b) => a.midi - b.midi || b.note.string - a.note.string)
+		.map(({ note }) => note);
 	return {
 		number,
-		notes,
+		notes: allNotes,
 		fretRange,
 		startString,
 		startFret,
-		roots: notes.filter((note) => note.isRoot),
+		roots: allNotes.filter((note) => note.isRoot),
 	};
 }
 
@@ -156,13 +188,23 @@ function buildPosition(
  *
  * @param root pitch class of the scale root (0 = C)
  * @param intervals pentatonic formula from the theory module, e.g. minor pentatonic 0 3 5 7 10
+ * @param extraIntervals notes added on top of the pentatonic core, such as the blue note
+ *   (flat five, 6) for the minor blues. Each is added wherever it falls inside a box's frets.
  */
 export function getScalePositions(
 	instrument: Instrument,
 	root: number,
 	intervals: readonly number[],
+	extraIntervals: readonly number[] = [],
 ): ScalePosition[] {
 	assertPentatonicFormula(intervals);
+	for (const extra of extraIntervals) {
+		if (!Number.isInteger(extra) || extra < 1 || extra > 11 || intervals.includes(extra)) {
+			throw new RangeError(
+				`Extra interval ${extra} must be 1–11 and not already in the scale.`,
+			);
+		}
+	}
 	const rootPitchClass = mod12(root);
 	const strings = stringsLowToHigh(instrument);
 	const lowest = strings[0];
@@ -185,6 +227,7 @@ export function getScalePositions(
 			intervals,
 			degree + 1,
 			fret,
+			extraIntervals,
 		);
 		if (position) {
 			positions.push(position);

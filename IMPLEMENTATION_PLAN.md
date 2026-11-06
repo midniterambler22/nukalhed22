@@ -105,7 +105,8 @@ Goal: a synchronized, correctable chord timeline. (SOP §9, SOP §21 step 7)
 ## Next — Scale library (UI_SPEC §6)
 
 - [x] All 20 scales in four groups (pentatonic and blues; major and modes; minor and harmonic variations; advanced and exotic), as interval formulas, on all 12 roots
-- [ ] Boxes (connected positions) for scales that aren't five-note; today they show every note in the chosen register
+- [x] Boxes for the two blues scales: the pentatonic's five boxes plus the blue note wherever it falls inside a box
+- [ ] Boxes for the seven-note scales and the other six- and eight-note scales; today they show every note in the chosen register
 
 ## Phase 6 — Recommendations and guided practice
 

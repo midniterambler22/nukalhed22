@@ -8,6 +8,7 @@ import {
 	SCALE_CATEGORIES,
 	SCALE_IDS,
 	isScaleId,
+	scaleBoxPlan,
 	scalesInCategory,
 	scaleContains,
 	scaleDegreeOf,
@@ -235,5 +236,25 @@ describe('scale membership', () => {
 		expect(scaleDegreeOf(3, a, 'minor-pentatonic')).toBeUndefined(); // Eb
 		const eFlat = scaleDegreeOf(3, a, 'minor-blues');
 		expect(eFlat && formatInterval(eFlat)).toBe('b5');
+	});
+});
+
+describe('box plans', () => {
+	it('uses the pentatonics as their own core', () => {
+		expect(scaleBoxPlan('minor-pentatonic')).toEqual({ core: [0, 3, 5, 7, 10], added: [] });
+		expect(scaleBoxPlan('major-pentatonic')).toEqual({ core: [0, 2, 4, 7, 9], added: [] });
+	});
+
+	it('builds the blues scales on their pentatonic and adds the blue note', () => {
+		expect(scaleBoxPlan('minor-blues')).toEqual({ core: [0, 3, 5, 7, 10], added: [6] });
+		expect(scaleBoxPlan('major-blues')).toEqual({ core: [0, 2, 4, 7, 9], added: [3] });
+	});
+
+	it('has no plan yet for the other scales', () => {
+		for (const id of SCALE_IDS) {
+			const plan = scaleBoxPlan(id);
+			const expected = ['minor-pentatonic', 'major-pentatonic', 'minor-blues', 'major-blues'];
+			expect(plan !== undefined, id).toBe(expected.includes(id));
+		}
 	});
 });

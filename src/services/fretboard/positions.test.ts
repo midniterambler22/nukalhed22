@@ -6,6 +6,7 @@ import {
 	getPreviousPosition,
 	getScalePositions,
 	getSharedNotes,
+	openMidiForString,
 	positionsInRegister,
 	registerOf,
 	registerRange,
@@ -387,5 +388,67 @@ describe('register selection', () => {
 			[1, 17, 'high'],
 			[2, 20, 'high'],
 		]);
+	});
+});
+
+describe('blues boxes (pentatonic core plus the blue note)', () => {
+	const aBlues = getScalePositions(guitar, A, MINOR_PENTATONIC, [6]);
+	const bluesBox = (number: number, startFret: number) =>
+		defined(aBlues.find((p) => p.number === number && p.startFret === startFret));
+
+	it('adds the blue note to box 1 where the familiar A blues box has it (frets 5–8)', () => {
+		const box = bluesBox(1, 5);
+		expect(fretsByString(box)).toEqual({
+			6: [5, 8],
+			5: [5, 6, 7],
+			4: [5, 7],
+			3: [5, 7, 8],
+			2: [5, 8],
+			1: [5, 8],
+		});
+		expect(
+			box.notes.filter((note) => note.isAdded).map((note) => [note.string, note.fret]),
+		).toEqual([
+			[5, 6],
+			[3, 8],
+		]);
+		expect(box.fretRange).toEqual({ min: 5, max: 8 });
+	});
+
+	it('keeps the same five boxes in the same places as the pentatonic', () => {
+		expect(aBlues.map((p) => [p.number, p.startFret, p.fretRange])).toEqual(
+			aMinor.map((p) => [p.number, p.startFret, p.fretRange]),
+		);
+		for (const box of aBlues) {
+			const core = aMinor.find(
+				(p) => p.number === box.number && p.startFret === box.startFret,
+			);
+			expect(box.notes.filter((note) => !note.isAdded)).toEqual(core?.notes);
+		}
+	});
+
+	it('only adds notes of the blue pitch class, inside the box, in rising pitch', () => {
+		for (const box of aBlues) {
+			for (const note of box.notes.filter((n) => n.isAdded)) {
+				expect(note.interval).toBe(6);
+				expect(note.fret).toBeGreaterThanOrEqual(box.fretRange.min);
+				expect(note.fret).toBeLessThanOrEqual(box.fretRange.max);
+			}
+			const midis = box.notes.map((n) => openMidiForString(guitar, n.string) + n.fret);
+			expect(midis).toEqual([...midis].sort((a, b) => a - b));
+		}
+	});
+
+	it('builds major blues boxes from the major pentatonic with the minor third added', () => {
+		const cBlues = getScalePositions(guitar, 0, semitones('major-pentatonic'), [3]);
+		expect(cBlues.length).toBeGreaterThan(0);
+		for (const box of cBlues) {
+			expect(box.notes.filter((n) => n.isAdded).every((n) => n.interval === 3)).toBe(true);
+		}
+	});
+
+	it('rejects an extra interval that is already in the core or out of range', () => {
+		expect(() => getScalePositions(guitar, A, MINOR_PENTATONIC, [7])).toThrow(RangeError);
+		expect(() => getScalePositions(guitar, A, MINOR_PENTATONIC, [12])).toThrow(RangeError);
 	});
 });
